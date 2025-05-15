@@ -1,0 +1,29 @@
+@for (profile of profiles; track $index) {
+<div class="profile-card">
+  <div class="avatar-name">
+    <img src="\assets\imgs\Img.png" alt="avatar" class="profile-card__avatar" />
+
+    <div class="profile-card__name">
+      <strong class="h6">{{ profile.name }}</strong>
+      <span class="subtitle">{{ profile.username }}</span>
+    </div>
+  </div>
+
+  <div class="profile-card__description">
+    {{ profile.description }}
+  </div>
+
+  <div class="skill">
+    <div class="skill-tag" *ngFor="let skill of profile.stack; let i = index">
+      {{ skill.trim() }}
+    </div>
+  </div>
+
+  <!-- @for (skill of profile.stack; track $index) {
+  <div class="skill-tag">{{ skill.trim() }}</div>
+  } -->
+</div>
+<div class="profile-card__action-btns">
+  <div class="btn">Подписаться</div>
+</div>
+}

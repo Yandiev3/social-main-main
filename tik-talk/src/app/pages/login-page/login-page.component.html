@@ -1,0 +1,28 @@
+<form class="user-form">
+<h1>Вход</h1>
+    <label for="userName">Логин</label>
+    <input
+      type="text"   id="userName"  [(ngModel)]="userName"    placeholder="Введите логин"  class="form-input"    [ngModelOptions]="{ standalone: true }"
+    />
+    <label for="userPassword">Пароль</label>
+    <input
+      type="password"   id="userPassword"  [(ngModel)]="userPassword"    placeholder="Введите пароль"   class="form-input"[ngModelOptions]="{ standalone: true }" 
+    /> 
+      
+
+    <!-- <p style="color: red"></p>
+  
+    <p class="error-message"></p> -->
+  
+    <button (click)="login()" class="submit-button">
+      Войти
+    </button>
+    <button (click)="register()" class="submit-button">
+      Регистрация
+    </button>
+    <p class="error-message">
+        {{ errorPassword }}
+        {{ errorValid }}
+        {{ error }}
+      </p>
+</form>
