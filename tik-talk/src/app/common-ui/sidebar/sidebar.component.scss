@@ -1,0 +1,30 @@
+:host{
+    display: block;
+    padding: 20px 12px;
+}
+
+.main-menu-list{
+    display: grid;
+    grid-gap: 8px;
+}
+
+.menu-item{
+    padding: 16px 12px;
+    cursor: pointer;
+    border: none;
+    color: var(--lith-color);
+    display: grid;
+    grid-template-columns: 16px 1fr max-content;
+    grid-gap: 12px;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 700;
+    width: 100%;
+    text-align: left; 
+    background: none;
+    &:hover,
+    &:focus{
+        background: var(--dark-hover-color);
+    }
+}
+

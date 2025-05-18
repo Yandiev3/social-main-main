@@ -10,7 +10,7 @@ const User = new Schema({
   password: { type: String, required: true },
   registrationDate: { type: Date, default: Date.now },
   roles: [{type: String, ref: "Role"}],
-  stack: [{type: Array, ref: "Stack"}],
+  stack: [{type: String, ref: "Stack"}],
 });
 
 module.exports = model("User", User);

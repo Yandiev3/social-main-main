@@ -1,28 +1,130 @@
-<form class="user-form">
-<h1>Вход</h1>
-    <label for="userName">Логин</label>
-    <input
-      type="text"   id="userName"  [(ngModel)]="userName"    placeholder="Введите логин"  class="form-input"    [ngModelOptions]="{ standalone: true }"
-    />
-    <label for="userPassword">Пароль</label>
-    <input
-      type="password"   id="userPassword"  [(ngModel)]="userPassword"    placeholder="Введите пароль"   class="form-input"[ngModelOptions]="{ standalone: true }" 
-    /> 
-      
-
-    <!-- <p style="color: red"></p>
-  
-    <p class="error-message"></p> -->
-  
-    <button (click)="login()" class="submit-button">
+<!-- <div class="container_wrapper">
+  <div class="wrapper">
+    <div class="title"><span>Вход</span></div>
+    <form action="#">
+          <label for="userName">Логин</label>
+      <div class="row">
+        <input
+          type="text"
+          id="userName"
+          [(ngModel)]="userName"
+          placeholder="Введите логин"
+          class="form-input"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+          <label for="userPassword">Пароль</label>
+      <div class="row">
+        <input
+          type="password"
+          id="userPassword"
+          [(ngModel)]="userPassword"
+          placeholder="Введите пароль"
+          class="form-input"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <div class="pass"><a href="/login">Забыли пароль?</a></div>
+      <div class="row button">
+        <button (click)="login()" class="submit-button">
       Войти
-    </button>
-    <button (click)="register()" class="submit-button">
-      Регистрация
     </button>
     <p class="error-message">
         {{ errorPassword }}
         {{ errorValid }}
         {{ error }}
       </p>
-</form>
+      </div>
+      <div class="signup-link"><a (click)="toggleForm(true)">Зарегистрироваться</a></div>
+    </form>
+  </div>
+</div> -->
+
+
+<div class="container_wrapper">
+  <div class="wrapper" [class.flipped]="isRegisterForm">
+    <div class="form-side front" [class.hidden]="isRegisterForm">
+      <div class="title"><span>Вход</span></div>
+      <form>
+        <label for="userName">Логин</label>
+        <div class="row">
+          <input
+            type="text"
+            id="userName"
+            [(ngModel)]="userName"
+            placeholder="Введите логин"
+            class="form-input"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+        <label for="userPassword">Пароль</label>
+        <div class="row">
+          <input
+            type="password"
+            id="userPassword"
+            [(ngModel)]="userPassword"
+            placeholder="Введите пароль"
+            class="form-input"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+        <div class="pass"><a href="#">Забыли пароль?</a></div>
+        <div class="row button">
+          <button (click)="login()" class="submit-button">Войти</button>
+          <p class="error-message">
+            {{ errorPassword }} {{ errorValid }} {{ error }}
+          </p>
+        </div>
+        <div class="signup-link">
+          Нет аккаунта? <a (click)="toggleForm(true)">Зарегистрироваться</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-side back" [class.hidden]="!isRegisterForm">
+      <div class="title"><span>Регистрация</span></div>
+      <form>
+        <label for="registerLogin">Логин</label>
+        <div class="row">
+          <input
+            type="text"
+            id="registerLogin"
+            [(ngModel)]="registerLogin"
+            placeholder="Придумайте логин"
+            class="form-input"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+        <label for="registerEmail">Пароль</label>
+        <div class="row">
+           <input
+            type="password"
+            id="registerPassword"
+            [(ngModel)]="registerPassword"
+            placeholder="Придумайте пароль"
+            class="form-input"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+        <label for="registerPassword">Пароль</label>
+        <div class="row">
+          <input
+            type="password"
+            id="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            placeholder="Повторите пароль"
+            class="form-input"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+        <div class="row button">
+          <button (click)="register()" class="submit-button">Зарегистрироваться</button>
+          <p class="error-message">{{ registerError }}</p>
+        </div>
+        <div class="signup-link">
+          Уже есть аккаунт? <a (click)="toggleForm(false)">Войти</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
