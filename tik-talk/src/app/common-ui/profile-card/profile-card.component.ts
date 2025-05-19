@@ -19,6 +19,7 @@ export class ProfileCardComponent{
 
   constructor(UserService: UserService,private router: Router, private profile: LoginService){  
     this._userService = UserService;
+    
   }
   async ngOnInit() {
     this.profiles = await this._userService.getProfiles();

@@ -107,6 +107,24 @@ class authController {
       
     }
   }
+
+  async getMe(req, res) {
+    try {
+      const user = await User.findById(req.user.id); 
+  
+      if (!user) {
+        return res.status(404).json({ message: "Ошибка при получение данных " });
+      }
+  
+      const { password, ...userData } = user._doc; 
+  
+      res.json(userData);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Ошибка при получении данных пользователя" });
+    }
+  }
+
 }
 
 module.exports = new authController();

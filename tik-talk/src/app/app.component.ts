@@ -6,7 +6,7 @@ import { SidebarComponent } from "./common-ui/sidebar/sidebar.component";
 
 @Component({
   selector: 'app-root',
-  imports: [ProfileCardComponent, LoginPageComponent, RouterOutlet, SidebarComponent],
+  imports: [RouterOutlet, SidebarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
