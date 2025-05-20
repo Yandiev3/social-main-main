@@ -31,6 +31,7 @@ export class UserService {
   
   
   getProfile(){
-    return this.http.get(`${this.apiUrl}/profile` )
+    const headers = this.getAuthHeaders();
+    return this.http.get(`${this.apiUrl}/profile`, { headers });
   }
 }

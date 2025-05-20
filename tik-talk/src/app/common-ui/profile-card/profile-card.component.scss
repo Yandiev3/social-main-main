@@ -23,6 +23,13 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    .subtitle{
+        font-size: 14px;
+        line-height: 24px;
+        color: var(--lith-color);
+        font-weight: 700;
+    }
 }
 
 

@@ -5,13 +5,22 @@
     --light-color: #ffffff;
     --primary-color: #AE7AFF;
     --dark-hover-color: #161616;
+    --btn-hover-color: #9b5ffc;
 }
 
 body{
     background-color: var(--dark-color);
     color: var(--light-color);
     font-family: 'JetBrains Mono';
-    background-image: url(../public/assets/imgs/ImgBg1920.png);
+    background: 
+    url(../public/assets/imgs/imageBg1920.png) 
+    no-repeat 
+    center center / cover 
+    fixed;
+
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
 }
 
 .skill {
@@ -48,7 +57,13 @@ body{
     font-weight: 800;
 }
 
-h2{
+.h2{
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 32px;
+}
+
+.h4{
     font-size: 24px;
     font-weight: 800;
     line-height: 32px;

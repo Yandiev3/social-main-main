@@ -1,18 +1,22 @@
-:host{
-    display: block;
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
     padding: 20px 12px;
-    background: red;
-    border-right-color: 1px solid var(--lith-color);
+    border-right: 1px solid var(--lith-color);
+    background-color: red;
+
 }
 
-.main-menu-list{
+.main-menu-list {
     display: grid;
     grid-gap: 8px;
     list-style: none;
     padding: 0;
+    flex: 1;
 }
 
-.menu-item{
+.menu-item {
     padding: 16px 12px;
     cursor: pointer;
     border: none;
@@ -24,24 +28,62 @@
     line-height: 24px;
     font-weight: 500;
     width: 100%;
-    text-align: left; 
+    text-align: left;
     background: none;
     align-items: center;
-     margin: 0;
+    margin: 0;
+    border-radius: 4px; 
+    
     &:hover,
-    &:focus{
+    &:focus {
         background: var(--dark-hover-color);
         color: var(--primary-color);
-
-        .menu-item svg{
+        
+        svg {
             fill: var(--primary-color);
+        }
+    }
+    
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+
+footer .menu-item {
+    padding: 8px 12px; 
+    grid-template-columns: 1fr max-content; 
+    
+    .container_profile {
+        width: 100%;
+        padding: 0; 
+        
+        .profile-card__name {
+            justify-content: flex-start; 
         }
     }
 }
 
-.menu-item{
-    svg{
-        width: 18px;
-        height: 18px;
+footer {
+    margin-top: auto;
+}
+
+.container_profile {
+    max-width: 276px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+    
+    .profile-card__name {
+        display: flex;
+        align-items: center;
+        column-gap: 12px;
     }
 }

@@ -1,16 +1,61 @@
+:host {
+    // Стили для host компонента
+}
 
-.profile-container{
+header {
+    display: grid;
+    grid-template-columns: 140px 1fr 1fr 1fr; // Три колонки: аватар, текст, кнопка
+    align-items: center; // Выравнивание по вертикали
+    grid-gap: 24px;
+    padding: 24px;
+}
+
+img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+}
+
+.username {
     display: flex;
+    gap: 24px; // Отступ между элементами
+    justify-content: left; 
+    align-items: center;
 
+    .regular{
+        font-size: 14px;
+        font-weight: 400;
+    }
 }
 
-.profile-main__left{
-    max-width: 380px;
-    width: 400px;
+.button-wrapper {
+    display: flex;
+    justify-content: flex-end; // Кнопка прижимается вправо
 }
 
-.profile-main__right{
-    max-width: 700px;
-    width: 700px;
-    background: black;
+.btn_setting {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background-color: var(--primary-color);
+    border: none;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 24px;
+    width: 175px;
+    height: 45px;
+    color: var(--dark-color);
+    border-radius: 2px;
+    cursor: pointer;
+    &:hover,
+    &:focus {
+        background: var(--btn-hover-color);
+    }
+    
+svg {
+    width: 14px;
+    height: 14px;
+    color: var(--dark-color);
+}
 }
