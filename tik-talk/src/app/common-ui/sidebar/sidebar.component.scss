@@ -1,8 +1,9 @@
 :host{
     display: block;
     padding: 20px 12px;
+    background: red;
+    border-right-color: 1px solid var(--lith-color);
 }
-
 
 .main-menu-list{
     display: grid;
