@@ -1,1 +1,64 @@
-<p>setting-profile works!</p>
+<main>
+  <div class="profile-container">
+    <!-- Left Column - Profile Info -->
+    <div class="settinginfo-profile">
+      <div class="avatar-container">
+        <img
+          [src]="user.avatar || 'assets/default-avatar.png'"
+          alt="Profile Avatar"
+        />
+      </div>
+      <div class="username">
+        <h1 class="h4">{{ user.name || "Ваше имя" }}</h1>
+        <span class="regular">{{ user.username || "@username" }}</span>
+      </div>
+    </div>
+
+    <!-- Right Column - Edit Form -->
+    <div class="profile-edit-form">
+      <div class="form-group">
+        <label>Имя</label>
+        <input type="text" placeholder="{{ user.name }}" />
+        <div class="underline"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" placeholder="{{ user.username }}" />
+        <div class="underline"></div>
+      </div>
+
+      <div class="form-group">
+        <label>О себе</label>
+        <textarea placeholder="Введите данные" rows="3"></textarea>
+        <div class="underline"></div>
+      </div>
+
+      <div class="form-group avatar-upload">
+        <label>Аватарка</label>
+        <div class="upload-area" (click)="triggerFileInput()">
+          <input
+            type="file"
+            #fileInput
+            (change)="onAvatarUpload($event)"
+            accept="image/*"
+            style="display: none"
+          />
+          <p>Перетащите изображение или Загрузите</p>
+          <p class="resolution-info">(разрешение до 5,000 x 5,000 px)</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Навыки</label>
+        <input type="text" placeholder="Введите данные" />
+        <div class="underline"></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn cancel" (click)="onCancel()">Отмена</button>
+        <button class="btn save" (click)="onSave()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</main>

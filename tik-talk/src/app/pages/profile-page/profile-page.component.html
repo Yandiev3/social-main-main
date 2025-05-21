@@ -6,14 +6,8 @@
     <span class="regular">{{ user.username }}</span>
   </div>
 
-  @if (aa) {
-
   <div class="button-wrapper">
-    <button
-      class="btn_setting"
-      routerLink="profile/setting"
-      routerLinkActive="active"
-    >
+    <button class="btn_setting" routerLink="setting" routerLinkActive="active">
       Редактировать
       <svg
         width="14"
@@ -29,15 +23,4 @@
       </svg>
     </button>
   </div>
-  } @else{
-  <div class="button-wrapper">
-    <button
-      class="btn_setting"
-      routerLink="profile/setting"
-      routerLinkActive="active"
-    >
-      Подписаться
-    </button>
-  </div>
-  }
 </header>
