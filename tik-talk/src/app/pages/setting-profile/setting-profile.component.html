@@ -40,7 +40,6 @@
           <input
             type="file"
             #fileInput
-            (change)="onAvatarUpload($event)"
             accept="image/*"
             style="display: none"
           />
@@ -56,8 +55,8 @@
       </div>
 
       <div class="form-actions">
-        <button class="btn cancel" (click)="onCancel()">Отмена</button>
-        <button class="btn save" (click)="onSave()">Сохранить</button>
+        <button class="btn cancel">Отмена</button>
+        <button class="btn save" (click)="editUser()">Сохранить</button>
       </div>
     </div>
   </div>

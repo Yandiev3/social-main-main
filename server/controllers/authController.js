@@ -125,6 +125,18 @@ class authController {
     }
   }
 
+
+
+  async updateUser(req, res) {
+    try {
+      const id = req.params.id;
+      const {name, username, avatar, city, age, email, stack, about} = req.body;
+      const User = await User.findByIdAndUpdate({ "_id": id }, {username : username, avatar : avatar, city: city, name: name, age: age, email: email, stack: stack, about: about});
+      res.status(200).json({message: "Продукт изменен"})
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
 
 module.exports = new authController();

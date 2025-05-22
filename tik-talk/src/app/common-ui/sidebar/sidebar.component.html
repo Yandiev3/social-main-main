@@ -60,7 +60,11 @@
 </nav>
 
 <footer>
-  <button class="menu-item" routerLink="/profile" routerLinkActive="active">
+  <button
+    class="menu-item"
+    [routerLink]="[`/profile/${user._id}`]"
+    routerLinkActive="active"
+  >
     <div class="container_profile">
       <div class="profile-card__name">
         <span>

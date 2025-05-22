@@ -16,16 +16,19 @@ export class SidebarComponent{
   
 
   constructor(private router: Router, private profile: UserService){  
+  
     
   }
   ngOnInit() {
     this.profile.getProfile().subscribe({
       next: (res: any) => {
         this.user = res;
+        console.log(this.user);
       },
       error: (error: any) => {
         console.error("Error fetching profile:", error);
       },
     });
+   
   }
 }

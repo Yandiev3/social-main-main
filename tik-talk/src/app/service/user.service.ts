@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import axios from "axios";
 import { Observable } from "rxjs";
 
 @Injectable({
@@ -34,4 +35,35 @@ export class UserService {
     const headers = this.getAuthHeaders();
     return this.http.get(`${this.apiUrl}/profile`, { headers });
   }
+
+
+
+  async editUser(user: any, token: string) {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-type' : 'application/json; charset=utf-8'
+    };
+      try {
+        let res = await axios.patch(
+          `http://localhost:5000/setting/update/${user._id}`,
+          {
+            username : user.username, 
+            avatar : user.avatar, 
+            city: user.city, 
+            name: user.name, 
+            age: user.age, 
+            email: user.email, 
+            stack: user.stack, 
+            about: user.about
+          },
+          {
+            headers
+          }
+        );
+        return res;
+      } catch (error) {
+        console.log(error);
+        return error
+      }
+    }
 }

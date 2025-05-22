@@ -12,6 +12,7 @@ const User = new Schema({
   roles: [{type: String, ref: "Role"}],
   stack: [{type: String, ref: "Stack"}],
   name: { type: String, default: "Default Name" },
+  about: { type: String, default: "Недавно в этой теме" },
 });
 
 module.exports = model("User", User);
