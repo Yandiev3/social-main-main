@@ -26,7 +26,6 @@ export class UserService {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
     });
   }
   
@@ -45,7 +44,7 @@ export class UserService {
     };
       try {
         let res = await axios.patch(
-          `http://localhost:5000/setting/update/${user._id}`,
+          `${this.apiUrl}/setting/update/${user._id}`,
           {
             username : user.username, 
             avatar : user.avatar, 

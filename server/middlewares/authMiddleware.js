@@ -3,37 +3,21 @@ const { secret } = require("../config");
 
 module.exports = function (req, res, next) {
   if (req.method === "OPTIONS") {
-    return next(); // Добавляем return для немедленного выхода
+    next();
   }
 
   try {
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader) {
-      return res.status(403).json({ message: "Требуется авторизация" });
-    }
+    const token = req.headers.authorization.split(' ')[1];
 
-    const token = authHeader.split(' ')[1]; // "Bearer TOKEN"
-    
     if (!token) {
-      return res.status(403).json({ message: "Неверный формат токена" });
+      return res.status(403).json({ message: "Пользователь не авторизован" });
     }
-
-    const decodedData = jwt.verify(token, secret);
-    req.user = decodedData; // { id, ...другие данные из payload }
-    next();
-    
+    const decodeDate = jwt.verify(token , secret)
+    req.user = decodeDate
+    next()
   } catch (e) {
-    console.error("JWT verification error:", e.message); // Более информативное логирование
+    console.log(e);
+    return res.status(403).json({message: "Нет доступа"})
     
-    if (e instanceof jwt.TokenExpiredError) {
-      return res.status(403).json({ message: "Токен истёк" });
-    }
-    
-    if (e instanceof jwt.JsonWebTokenError) {
-      return res.status(403).json({ message: "Недействительный токен" });
-    }
-    
-    return res.status(403).json({ message: "Ошибка авторизации" });
   }
 };

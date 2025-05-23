@@ -13,7 +13,7 @@ const generateAccessToken = (id) => {
   return jwt.sign(payload, secret, { expiresIn: "24h" });
 };
 
-class authController {
+class AuthController {
   async registration(req, res) {
     try {
       const errors = validationResult(req);
@@ -127,16 +127,45 @@ class authController {
 
 
 
-  async updateUser(req, res) {
-    try {
-      const id = req.params.id;
-      const {name, username, avatar, city, age, email, stack, about} = req.body;
-      const User = await User.findByIdAndUpdate({ "_id": id }, {username : username, avatar : avatar, city: city, name: name, age: age, email: email, stack: stack, about: about});
-      res.status(200).json({message: "Продукт изменен"})
-    } catch (e) {
-      console.log(e);
+async updateUser(req, res) {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ message: "Не авторизован" });
     }
+
+    const id = req.params.id;
+    const { name, username, avatar, city, age, email, stack, about } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      { "_id": id },
+      { 
+        username: username, 
+        avatar: avatar, 
+        city: city, 
+        name: name, 
+        age: age, 
+        email: email, 
+        stack: stack, 
+        about: about 
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Пользователь не найден" });
+    }
+
+    res.status(200).json({ 
+      message: "Профиль успешно обновлен", 
+      user: updatedUser 
+    });
+    
+  } catch (e) {
+    console.error("Ошибка при обновлении:", e);
+    res.status(500).json({ message: "Ошибка сервера при обновлении" });
   }
 }
-
-module.exports = new authController();
+}
+module.exports = new AuthController();

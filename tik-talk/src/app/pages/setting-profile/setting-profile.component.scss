@@ -59,7 +59,7 @@ main {
         font-size: 14px;
         font-weight: 500;
         margin-bottom: 8px;
-        color: #333;
+        color: var(--light-color);
       }
   
       input, textarea {
@@ -70,6 +70,7 @@ main {
         padding: 8px 0;
         background: transparent;
         resize: none;
+        color: var(--light-color);
       }
   
       .underline {
@@ -88,7 +89,7 @@ main {
           transition: all 0.3s ease;
   
           &:hover {
-            border-color: #1976d2;
+            border-color: var(--dark-color);
             background: #f5f9ff;
           }
   

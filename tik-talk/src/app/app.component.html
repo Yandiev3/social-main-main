@@ -1,7 +1,7 @@
-<!-- <app-profile-card /> -->
-<!-- <app-login-page /> -->
-<app-sidebar/>
-
-<div>
-<router-outlet></router-outlet>
+<div class="page-container">
+  <app-sidebar *ngIf="showSidebar"></app-sidebar>
+  
+  <div class="content-container">
+    <router-outlet></router-outlet>
+  </div>
 </div>

@@ -25,14 +25,6 @@ export class ProfileCardComponent{
     this.profiles = await this._userService.getProfiles();
     console.log(this.profiles);
 
-    this.profile.getProfile().subscribe({
-      next: (res: any) => {
-        this.isAdmin = res.roles[0] == "Admin" ? true : false;
-        console.log(this.isAdmin);
-      },
-      error: (error: any) => {
-        console.error("Error fetching profile:", error);
-      },
-    });
+    
   }
 }

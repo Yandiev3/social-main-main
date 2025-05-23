@@ -65,6 +65,7 @@ import { LoginService } from '../../service/login.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RegistrationService } from '../../service/registration.service';
+import { Token } from '@angular/compiler';
 
 @Component({
   selector: 'app-authorization',
@@ -120,8 +121,11 @@ export class LoginPageComponent {
       password: this.userPassword 
     }).subscribe({
       next: (res: any) => {
+        console.log('До сохранения токена', res.token)
         localStorage.setItem("token", res.token);
+        console.log(res.token);
         this.route.navigateByUrl("/");
+        
       },
       error: (e) => {
         this.error = e.error?.message || "Ошибка входа";

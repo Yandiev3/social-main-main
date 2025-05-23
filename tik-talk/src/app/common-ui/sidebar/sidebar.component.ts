@@ -1,12 +1,12 @@
 import { Router, RouterModule } from "@angular/router";
 import { Component} from '@angular/core';
 import { UserService } from "../../service/user.service";
-import { NgFor } from "@angular/common";
+import { NgIf } from "@angular/common";
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, NgIf],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
