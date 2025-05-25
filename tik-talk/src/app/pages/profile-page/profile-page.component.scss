@@ -1,11 +1,7 @@
-:host {
-    // Стили для host компонента
-}
-
 header {
     display: grid;
-    grid-template-columns: 140px 1fr 1fr 1fr; // Три колонки: аватар, текст, кнопка
-    align-items: center; // Выравнивание по вертикали
+    grid-template-columns: 140px 1fr 1fr 1fr;
+    align-items: center;
     grid-gap: 24px;
     padding: 24px;
 }
@@ -18,7 +14,7 @@ img {
 
 .username {
     display: flex;
-    gap: 24px; // Отступ между элементами
+    gap: 24px;
     justify-content: left; 
     align-items: center;
 
@@ -30,7 +26,7 @@ img {
 
 .button-wrapper {
     display: flex;
-    justify-content: flex-end; // Кнопка прижимается вправо
+    justify-content: flex-end;
 }
 
 .btn_setting {

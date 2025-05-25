@@ -3,10 +3,11 @@ import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/rout
 import { SidebarComponent } from "./common-ui/sidebar/sidebar.component";
 import { filter } from 'rxjs';
 import { NgIf } from '@angular/common';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SidebarComponent, RouterModule, NgIf],
+  imports: [RouterOutlet, SidebarComponent, RouterModule, NgIf, NgSelectModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

@@ -4,7 +4,7 @@ const controller = require("../controllers/authController");
 const { check } = require("express-validator");
 const authMiddleware = require("../middlewares/authMiddleware");
 const upload = require("../middlewares/upload");
-const authController = require("../controllers/authController");
+
 
 
 router.post("/registration", upload.single("avatar"), [
@@ -18,6 +18,6 @@ router.post("/registration", upload.single("avatar"), [
  router.post("/login",  controller.login);
  router.get("/users",  controller.getUsers);
  router.get("/profile", authMiddleware, controller.getMe);
- router.patch("/setting/update/:id", authMiddleware, authController.updateUser);
+ router.patch("/setting/update/:id", authMiddleware, controller.updateUser);
 
 module.exports = router;
