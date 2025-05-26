@@ -22,7 +22,7 @@ export class SettingProfileComponent {
   email: string = '';
   stack: any = '';
   about: string = '';
-
+  error: string = '';
 
   programmingSkills = [
     { id: 1, name: 'JavaScript' },
@@ -76,10 +76,9 @@ export class SettingProfileComponent {
       },
     });
   }  
-  triggerFileInput() {
-    this.fileInput.nativeElement.click();
-  }
-
+  // triggerFileInput() {
+  //   this.fileInput.nativeElement.click();
+  // }
   async editUser() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -107,6 +106,27 @@ export class SettingProfileComponent {
     } catch (error) {
       console.error('Ошибка при обновлении профиля:', error);
       alert('Ошибка при обновлении профиля');
+    }
+  }
+
+  onfileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      if (!allowedTypes.includes(file.type)) {
+        this.error = "Допустимы только изоображения JPEG , JPG или PNG";
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        this.error = "Размер файла не должен привышать 2МБ";
+        return;
+      }
+
+      this.user.avatar = file;
+      this.error = " ";
     }
   }
 }

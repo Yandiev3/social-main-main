@@ -7,7 +7,7 @@ const User = new Schema({
   name: { type: String},
   age: { type: Number },
   email: { type: String},
-  password: { type: String, required: true },
+  password: { type: String },
   registrationDate: { type: Date, default: Date.now },
   roles: [{type: String, ref: "Role"}],
   stack: [{type: String, ref: "Stack"}],

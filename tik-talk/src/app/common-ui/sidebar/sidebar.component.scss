@@ -54,7 +54,6 @@
 footer .menu-item {
     padding: 25px 12px; 
     grid-template-columns: 1fr max-content; 
-    
     .container_profile {
         width: 100%;
         padding: 0; 
@@ -74,6 +73,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    box-sizing: border-box;
     
     img {
         width: 32px;
@@ -85,5 +85,7 @@ footer {
         display: flex;
         align-items: center;
         column-gap: 12px;
+    box-sizing: border-box;
+
     }
 }

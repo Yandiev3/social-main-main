@@ -18,6 +18,7 @@ main {
   background-color: rgba(1, 1, 1, 0.4);
   border-radius: 12px;
   height: fit-content;
+  box-sizing: border-box;
 
   .avatar-container {
     margin-bottom: 20px;
@@ -35,6 +36,7 @@ main {
 
   .username {
     text-align: center;
+    box-sizing: border-box;
     
     .h4 {
       font-size: 22px;
@@ -47,6 +49,8 @@ main {
       font-size: 16px;
       color: var(--light-color);
       font-weight: 400;
+    box-sizing: border-box;
+
     }
   }
 }
@@ -179,6 +183,10 @@ main {
     }
   }
   
+  .ng-dropdown-panel-items{
+    background-color: red;
+  }
+
   .ng-dropdown-panel {
     background: red;
     border: 1px solid #1a3a6e;

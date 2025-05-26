@@ -43,21 +43,10 @@ export class UserService {
       'Content-type' : 'application/json; charset=utf-8'
     };
       try {
-        let res = await axios.patch(
-          `${this.apiUrl}/setting/update/${user._id}`,
-          {
-            username : user.username, 
-            avatar : user.avatar, 
-            city: user.city, 
-            name: user.name, 
-            age: user.age, 
-            email: user.email, 
-            stack: user.stack, 
-            about: user.about
-          },
-          {
-            headers
-          }
+        const res = await axios.patch(
+          `${this.apiUrl}/setting/update/${user.get('_id')}`,
+          user,
+          { headers }
         );
         return res;
       } catch (error) {

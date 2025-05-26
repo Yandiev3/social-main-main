@@ -18,6 +18,6 @@ router.post("/registration", upload.single("avatar"), [
  router.post("/login",  controller.login);
  router.get("/users",  controller.getUsers);
  router.get("/profile", authMiddleware, controller.getMe);
- router.patch("/setting/update/:id", authMiddleware, controller.updateUser);
+ router.patch("/setting/update/:id", upload.single("avatar"), controller.updateUser, authMiddleware);
 
 module.exports = router;

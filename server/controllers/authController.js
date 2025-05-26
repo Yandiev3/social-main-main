@@ -136,7 +136,11 @@ async updateUser(req, res) {
     }
 
     const id = req.params.id;
+   
+    
     const { name, username, avatar, city, age, email, stack, about } = req.body;
+    
+    
     
     const updatedUser = await User.findByIdAndUpdate(
       { "_id": id },
@@ -153,9 +157,15 @@ async updateUser(req, res) {
       { new: true }
     );
 
+    if (req.file) {
+      updatedUser.avatar = req.file.path;
+    }
+
     if (!updatedUser) {
       return res.status(404).json({ message: "Пользователь не найден" });
     }
+
+
 
     res.status(200).json({ 
       message: "Профиль успешно обновлен", 
