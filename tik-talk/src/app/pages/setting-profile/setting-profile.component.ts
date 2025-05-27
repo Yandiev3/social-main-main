@@ -9,6 +9,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
   templateUrl: './setting-profile.component.html',
   styleUrls: ['./setting-profile.component.scss'],
   imports: [FormsModule, NgSelectModule],
+  encapsulation: ViewEncapsulation.None
 })
 export class SettingProfileComponent {
   @ViewChild('fileInput') fileInput!: ElementRef;
