@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../service/user.service';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 
 
 @Component({
     selector: 'app-profile-page',
     standalone: true,
-    imports: [RouterModule, NgIf],
+    imports: [RouterModule, NgIf, NgFor],
     templateUrl: './profile-page.component.html',
     styleUrls: ['./profile-page.component.scss']
   })

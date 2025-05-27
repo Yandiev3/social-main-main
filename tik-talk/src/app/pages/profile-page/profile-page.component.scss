@@ -1,9 +1,10 @@
 header {
     display: grid;
-    grid-template-columns: 140px 1fr 1fr 1fr;
+    grid-template-columns: 140px 1fr 340px;
     align-items: center;
     grid-gap: 24px;
     padding: 24px;
+    background-color: red;
 }
 
 img {
@@ -26,7 +27,6 @@ img {
 
 .button-wrapper {
     display: flex;
-    justify-content: flex-end;
 }
 
 .btn_setting {
@@ -54,4 +54,99 @@ svg {
     height: 14px;
     color: var(--dark-color);
 }
+}
+
+
+main{
+    background-color: blue;
+
+    .main-content_container{
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        grid-gap: 24px;
+        padding: 24px;
+        background-color: yellow;
+    .main-other{
+        display: grid;
+        grid-gap: 24px;
+        padding: 24px;
+        background-color: green;
+        width: 286px;
+        .stacks{
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+            margin-top: 32px;
+
+            .skill_main{
+                margin-top: 16px;
+            }
+        }
+      
+        .about{
+            width: 286px;
+            .about_main{
+                margin-top: 16px;
+                word-wrap: break-word;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 16px;
+            }
+        }
+
+    }
+  }
+
+    .main-content{
+        display: grid;
+        grid-gap: 24px;
+        padding: 24px;
+        background-color: brown;
+        width: 90%;
+
+        .main-content_post{
+            display: flex;
+            width: 97%;
+            height: 80px;
+            background-color: black;
+            border: 1px solid var(--light-color);
+            border-radius: 2px;
+            padding: 16px;
+            position: relative;
+            gap: 50px;
+            align-items: center;   
+            justify-content: space-between;         
+            textarea{
+                // border: none;
+                // background: none;
+                // font-size: 18px;
+                // font-weight: 500;
+                // width: 80%;
+                // color: white;
+                // padding: 16px 16px;
+
+                font-size: 16px;
+                line-height: 20px;
+                display: block;
+                overflow: hidden;
+                box-sizing: border-box;
+                flex: 1;
+                color: white;
+                padding: 0 16px;
+                resize: none;
+                border: none;
+                outline: none;
+                background-color: initial;
+            }
+            button{
+                width: 44px;
+                height: 44px;
+                background: var(--primary-color);
+                border-radius: 2px;
+            }
+            button :hover{
+                color: white;
+            }
+        }
+    }
 }

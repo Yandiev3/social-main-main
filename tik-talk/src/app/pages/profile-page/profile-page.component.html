@@ -7,8 +7,11 @@
   </div>
 
   <div class="button-wrapper" *ngIf="user">
-    <button class="btn_setting" [routerLink]="['/profile', user._id]"
-    routerLinkActive="active">
+    <button
+      class="btn_setting"
+      [routerLink]="['/profile', user._id]"
+      routerLinkActive="active"
+    >
       Редактировать
       <svg
         width="14"
@@ -25,3 +28,55 @@
     </button>
   </div>
 </header>
+
+<main>
+  <div class="main-content_container">
+    <div class="main-content">
+      <div class="main-content_post">
+        <textarea
+          type="text"
+          maxlength="300"
+          placeholder="Напишите что-нибудь?"
+          rows="2"
+        ></textarea>
+        <button>
+          <svg
+            width="15"
+            height="12"
+            viewBox="0 0 15 12"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0.34375 12V7.34375L10.3438 6L0.34375 4.65625V0L14.3438 6L0.34375 12Z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="main-content_all"></div>
+    </div>
+    <div class="main-other">
+      <div class="other-content">
+        <div class="subscribers h6">Подписчики</div>
+        <div class="stacks h6">
+          Навыки
+          <div class="skill_main">
+            <span
+              class="skill-tag"
+              *ngFor="let skill of user.stack; let i = index"
+            >
+              {{ skill.trim() }}
+            </span>
+          </div>
+        </div>
+        <div class="about h6">
+          О себе
+          <div class="about_main">
+            {{ user?.about ? user?.about : "Нет информации" }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

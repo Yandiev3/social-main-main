@@ -33,7 +33,6 @@ class AuthController {
       }
       const hashPassword = bcrypt.hashSync(password, 8);
       const userRole = await Role.findOne({ value: "User"});
-      const userStack = await Stack.findOne({ value: "Evrijasiers"});
       
 
       const user = new User({
@@ -43,7 +42,7 @@ class AuthController {
         email,
         password: hashPassword,
         roles: [userRole.value],
-        stack: [userStack.value],
+        Stack,
       });
       if (req.file) {
         user.avatar = req.file.path;
