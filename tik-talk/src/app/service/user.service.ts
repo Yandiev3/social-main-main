@@ -40,7 +40,6 @@ export class UserService {
   async editUser(user: any, token: string) {
     const headers = {
       Authorization: `Bearer ${token}`,
-      'Content-type' : 'application/json; charset=utf-8'
     };
       try {
         const res = await axios.patch(
@@ -48,10 +47,29 @@ export class UserService {
           user,
           { headers }
         );
-        return res;
+        return res.data;
       } catch (error) {
         console.log(error);
         return error
       }
     }
+
+    async uploadAvatar(file: File, userId: string){
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token available');
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    return axios.post(`${this.apiUrl}/setting/update/${userId}`, formData, { headers })
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error uploading avatar:', error);
+        throw error;
+      });
+  }
 }

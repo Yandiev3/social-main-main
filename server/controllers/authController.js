@@ -23,7 +23,7 @@ class AuthController {
           .status(400)
           .json({ meassage: "Ошибка при регистрации", errors });
       }
-      const { name, username, age, email, password  } = req.body;
+      const { name, username, age, email, password, lastname } = req.body;
       const candidate = await User.findOne({ username });
 
       if (candidate) {
@@ -37,6 +37,7 @@ class AuthController {
 
       const user = new User({
         name,
+        lastname,
         username,
         age,
         email,

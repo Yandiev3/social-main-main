@@ -19,11 +19,11 @@
         </div>
 
         <div class="form-group half-width">
-          <label>Username</label>
+          <label>Фамилия</label>
           <input
             type="text"
-            [(ngModel)]="username"
-            [placeholder]="user?.username"
+            [(ngModel)]="lastname"
+            [placeholder]="user?.lastname"
           />
           <div class="underline"></div>
         </div>
@@ -78,7 +78,7 @@
 
       <div class="form-group avatar-upload" style="width: 100%">
         <label>Аватарка</label>
-        <div class="upload-area">
+        <div class="upload-area" (click)="triggerFileInput()">
           <input
             type="file"
             #fileInput
@@ -91,11 +91,27 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn cancel">Отмена</button>
-        <button type="button" class="btn save" (click)="editUser()">
-          Сохранить
-        </button>
-      </div>
+  <div class="action-buttons-left">
+    <button type="button" class="btn logout" (click)="logout()">
+      <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
+        <path d="M1.65625 1.34375V10.6562H7V12H1.65625C1.30208 12 0.989583 11.8646 0.71875 11.5938C0.46875 11.3229 0.34375 11.0104 0.34375 10.6562V1.34375C0.34375 0.989583 0.46875 0.677083 0.71875 0.40625C0.989583 0.135417 1.30208 0 1.65625 0H7V1.34375H1.65625ZM10.3438 2.65625L13.6562 6L10.3438 9.34375L9.40625 8.375L11.125 6.65625H4.34375V5.34375H11.125L9.40625 3.59375L10.3438 2.65625Z" fill="currentColor"/>
+      </svg>
+      Выход
+    </button>
+    <!-- <button type="button" class="btn reset" (click)="resetForm()">
+      <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+        <path d="M7.34375 0.65625H9.65625V2H0.34375V0.65625H2.65625L3.34375 0H6.65625L7.34375 0.65625ZM2.34375 4V10.6562H7.65625V4H2.34375ZM1 10.6562V2.65625H9V10.6562C9 11.0104 8.86458 11.3229 8.59375 11.5938C8.32292 11.8646 8.01042 12 7.65625 12H2.34375C1.98958 12 1.67708 11.8646 1.40625 11.5938C1.13542 11.3229 1 11.0104 1 10.6562Z" fill="currentColor"/>
+      </svg>
+      Сброс
+    </button> -->
+  </div>
+  <div class="action-buttons-right">
+    <button type="button" class="btn cancel">Отмена</button>
+    <button type="button" class="btn save" (click)="editUser()">
+      Сохранить
+    </button>
+  </div>
+</div>
     </div>
   </div>
 </main>

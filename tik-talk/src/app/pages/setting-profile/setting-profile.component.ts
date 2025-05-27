@@ -19,11 +19,13 @@ export class SettingProfileComponent {
   avatar: any = '';
   city: string = '';
   name: string = '';
+  lastname: string = '';
   age: any = '';
   email: string = '';
   stack: any = '';
   about: string = '';
   error: string = '';
+  // originalData: any = {};
 
   programmingSkills = [
     { id: 1, name: 'JavaScript' },
@@ -61,6 +63,7 @@ export class SettingProfileComponent {
         this.avatar = this.user.avatar || '';
         this.city = this.user.city || '';
         this.name = this.user.name || '';
+        this.lastname = this.user.lastname || '';
         this.age = this.user.age || '';
         this.email = this.user.email || '';
         this.stack = this.user.stack || '';
@@ -77,9 +80,11 @@ export class SettingProfileComponent {
       },
     });
   }  
-  // triggerFileInput() {
-  //   this.fileInput.nativeElement.click();
-  // }
+
+  triggerFileInput() {
+    this.fileInput.nativeElement.click();
+  }
+  
   async editUser() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -96,13 +101,18 @@ export class SettingProfileComponent {
         avatar: this.avatar,
         city: this.city,
         name: this.name,
+        lastname: this.lastname,
         age: this.age,
         email: this.email,
         stack: skillsArray,
         about: this.about
       };
-
+      
       const res = await this.profile.editUser(updatedData, token);
+
+      this.user = { ...this.user, ...updatedData };
+
+
       this.router.navigate(['/profile', this.user._id] );
     } catch (error) {
       console.error('Ошибка при обновлении профиля:', error);
@@ -110,7 +120,7 @@ export class SettingProfileComponent {
     }
   }
 
-  onfileSelected(event: Event): void {
+  onfileSelected(event: Event){
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
@@ -129,5 +139,10 @@ export class SettingProfileComponent {
       this.user.avatar = file;
       this.error = " ";
     }
+  }
+
+   logout() {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']); 
   }
 }
