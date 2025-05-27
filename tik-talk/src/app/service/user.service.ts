@@ -44,7 +44,7 @@ export class UserService {
     };
       try {
         const res = await axios.patch(
-          `${this.apiUrl}/setting/update/${user.get('_id')}`,
+          `${this.apiUrl}/setting/update/${user._id}`,
           user,
           { headers }
         );
