@@ -64,14 +64,15 @@
     &__two {
         display: flex;
         flex-direction: column;
-        background: #000;
-        border: 1px solid #fff;
+        gap: 8px;
         
         .profiles {
             display: flex;
             gap: 32px;
             align-items: center;
             padding: 24px;
+            background: #000;
+            border: 1px solid #fff;
 
             &__info {
                 display: flex;
