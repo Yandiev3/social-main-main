@@ -43,7 +43,7 @@ class AuthController {
         email,
         password: hashPassword,
         roles: [userRole.value],
-        Stack,
+        Stack: [],
       });
       if (req.file) {
         user.avatar = req.file.path;

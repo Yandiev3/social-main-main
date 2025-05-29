@@ -38,8 +38,9 @@
           maxlength="300"
           placeholder="Напишите что-нибудь?"
           rows="2"
+          [(ngModel)]="newPostContent"
         ></textarea>
-        <button>
+        <button (click)="createPost()">
           <svg
             width="15"
             height="12"
@@ -54,7 +55,14 @@
           </svg>
         </button>
       </div>
-      <div class="main-content_all"></div>
+      <div class="main-content_all">
+        <div
+          class="main-contenet_card"
+          *ngFor="let post of posts; let i = index"
+        >
+          <h1>{{ post.content }}</h1>
+        </div>
+      </div>
     </div>
     <div class="main-other">
       <div class="other-content">
