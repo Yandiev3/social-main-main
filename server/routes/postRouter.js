@@ -1,17 +1,17 @@
-// const Router = require("express");
-// const router = new Router();
-// const postController = require("../controllers/postController");
-// const { check } = require("express-validator");
-// const authMiddleware = require("../middlewares/authMiddleware");
-// const upload = require("../middlewares/upload");
-// const { model } = require("mongoose");
-// const { modelName } = require("../models/UserRole");
+const Router = require("express");
+const router = new Router();
+const postController = require("../controllers/postController");
+const authMiddleware = require("../middlewares/authMiddleware");
+//const upload = require("../middlewares/upload");
 
 
-// router.post("/posts", upload, postController);
-// //router.get("/posts", getAllPosts);
-// router.get("/posts/:id",  postController);
-// // router.put("/posts/:id", checkAuth, upload, updatePost);
-// // router.delete("/posts/:id", checkAuth, deletePost);
+router.post("/create", authMiddleware, postController.createPost);
+//router.get("/posts", getAllPosts);
+router.get("/user",  authMiddleware, postController.getAllPosts);
+// router.put("/posts/:id", checkAuth, upload, updatePost);
+// router.delete("/posts/:id", checkAuth, deletePost);
 
-// module.exports = router;
+// app.get("/posts", authMiddleware, getAllPosts);
+// app.post("/post", authMiddleware, createPost);
+
+module.exports = router;

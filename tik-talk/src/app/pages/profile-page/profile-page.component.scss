@@ -61,10 +61,11 @@ main{
     background-color: blue;
 
     .main-content_container{
-        display: grid;
-        grid-template-columns: 1fr 340px;
-        grid-gap: 24px;
-        padding: 24px;
+        display: flex;
+        // display: grid;
+        // grid-template-columns: 1fr 340px;
+        // grid-gap: 24px;
+        // padding: 24px;
         background-color: yellow;
     .main-other{
         display: grid;

@@ -3,7 +3,7 @@ const cors = require('cors');
 const { default: mongoose } = require("mongoose");
 const authRouter = require("./routes/authRouter");
 const postRouter = require("./routes/postRouter");
-const { createPost, getAllPosts } = require("./controllers/postController"); // Убедитесь, что getAllPosts импортирован
+const  { createPost, getAllPosts } = "./controllers/postController";
 const authMiddleware = require("./middlewares/authMiddleware");
 
 const PORT = process.env.PORT || 5000;
@@ -14,8 +14,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/uploads', express.static('uploads'));
 
-app.get("/posts", authMiddleware, getAllPosts);
-app.post("/post", authMiddleware, createPost);
+app.use('/post', postRouter);
 
 const start = async () => {
   try {

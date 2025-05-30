@@ -11,7 +11,7 @@ export class PostService {
   async fetchPosts(){
     try {
       const token: string | null = localStorage.getItem('token');
-      const url = `${this.BASE_API_URL}/posts`;
+      const url = `${this.BASE_API_URL}/post/user`;
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -22,26 +22,22 @@ export class PostService {
       
       return response.data.posts || [];
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('Ошибка при получении постов', error);
       return [];
     }
   }
 
-  async createPost(content: string, image?: File): Promise<any> {
+  async createPost(content: string){
     try {
       const formData = new FormData();
       formData.append('content', content);
-      if (image) {
-        formData.append('image', image);
-      }
-
       const response = await axios.post(
-        `${this.BASE_API_URL}/posts`,
-        formData,
+        `${this.BASE_API_URL}/post/create`,
+        {content},
         { 
           headers: { 
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'application/json'
           } 
         }
       );

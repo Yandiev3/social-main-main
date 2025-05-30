@@ -13,10 +13,10 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./profile-page.component.scss']
 })
 export class ProfilePageComponent {
-  user: any;
+  user: any = { stack: [] };
   posts: any[] = [];
   newPostContent: string = '';
-  selectedImage: File | null = null;
+  // selectedImage: File | null = null;
 
   constructor(
     private router: Router, 
@@ -36,7 +36,7 @@ export class ProfilePageComponent {
         this.loadPosts();
       },
       error: (error: any) => {
-        console.error("Error profile:", error);
+        console.error("Ошибка при получении", error);
       },
     });
   }
@@ -44,17 +44,17 @@ export class ProfilePageComponent {
     this.posts = await this.postService.fetchPosts();
   }
 
-  onImageSelected(event: any) {
-    this.selectedImage = event.target.files[0];
-  }
+  // onImageSelected(event: any) {
+  //   this.selectedImage = event.target.files[0];
+  // }
 
   async createPost() {
     if (!this.newPostContent.trim()) return;
 
     try {
-      await this.postService.createPost(this.newPostContent, this.selectedImage || undefined);
+      await this.postService.createPost(this.newPostContent);
       this.newPostContent = '';
-      this.selectedImage = null;
+      // this.selectedImage = null;
       await this.loadPosts();
     } catch (error) {
       console.error('Ошибка при создании post:', error);

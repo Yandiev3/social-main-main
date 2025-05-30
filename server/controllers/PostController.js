@@ -1,12 +1,10 @@
-import Post from "../models/Post.js";
+const Post = require("../models/Post");
 
-export const createPost = async (req, res) => {
+ const createPost = async (req, res) => {
   try {
     const { id } = req.user;
-    
     const {
         content, 
-        image,
         likes, 
         comment, 
         createdAt, 
@@ -24,7 +22,7 @@ export const createPost = async (req, res) => {
     const post = new Post({
         userId: id,
         content, 
-        image,
+        // image,
         likes, 
         comment, 
         createdAt, 
@@ -38,7 +36,7 @@ export const createPost = async (req, res) => {
   }
 };
 
-export const getAllPosts = async (req, res) => {
+ const getAllPosts = async (req, res) => {
     try {
         const { id } = req.user;
 
@@ -50,3 +48,5 @@ export const getAllPosts = async (req, res) => {
       res.status(500).json({ message: "Ошибка сервера", error: error.message });
     }
   };
+
+  module.exports = {createPost, getAllPosts};
