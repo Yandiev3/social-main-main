@@ -111,11 +111,9 @@ class AuthController {
   async getMe(req, res) {
     try {
       const user = await User.findById(req.user.id); 
-  
       if (!user) {
         return res.status(404).json({ message: "Ошибка при получение данных " });
       }
-  
       const { password, ...userData } = user._doc; 
   
       res.json(userData);
@@ -129,43 +127,34 @@ class AuthController {
 
 async updateUser(req, res) {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const id = req.params.id;
+    const { name, username, city, age, email, stack, about } = req.body;
     
-    if (!token) {
-      return res.status(401).json({ message: "Не авторизован" });
+    // Создаем объект для обновления
+    const updateData = { 
+      username, 
+      city, 
+      name, 
+      age, 
+      email, 
+      stack, 
+      about 
+    };
+
+    // Если есть файл, добавляем путь к аватару
+    if (req.file) {
+      updateData.avatar = `http://localhost:5000/${req.file.path.replace(/\\/g, '/')}`;
     }
 
-    const id = req.params.id;
-   
-    
-    const { name, username, avatar, city, age, email, stack, about } = req.body;
-    
-    
-    
     const updatedUser = await User.findByIdAndUpdate(
-      { "_id": id },
-      { 
-        username: username, 
-        avatar: avatar, 
-        city: city, 
-        name: name, 
-        age: age, 
-        email: email, 
-        stack: stack, 
-        about: about 
-      },
+      id, // Просто передаем id, а не объект
+      updateData,
       { new: true }
     );
-
-    if (req.file) {
-      updatedUser.avatar = req.file.path;
-    }
 
     if (!updatedUser) {
       return res.status(404).json({ message: "Пользователь не найден" });
     }
-
-
 
     res.status(200).json({ 
       message: "Профиль успешно обновлен", 
@@ -177,5 +166,6 @@ async updateUser(req, res) {
     res.status(500).json({ message: "Ошибка сервера при обновлении" });
   }
 }
+
 }
 module.exports = new AuthController();

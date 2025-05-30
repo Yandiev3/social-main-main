@@ -5,43 +5,50 @@ import axios from 'axios';
   providedIn: 'root',
 })
 export class PostService {
-  private readonly BASE_API_URL = 'http://localhost:5000';
-  private readonly BASE_IMAGE_URL = 'http://localhost:5000/';
+  private readonly http = 'http://localhost:5000';
 
-  async fetchPosts(){
+  private getAuthConfig() {
+    return {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    };
+  }
+
+  async fetchPosts() {
     try {
-      const token: string | null = localStorage.getItem('token');
-      const url = `${this.BASE_API_URL}/post/user`;
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response = await axios.get(url, config);
-      console.log(response.data);
-      
-      return response.data.posts || [];
+      const response = await axios.get(
+        `${this.http}/post/user`, 
+        this.getAuthConfig()
+      );
+      return response.data.posts?.map((post: any) => ({
+        ...post,
+        showComments: false,
+        newComment: '',
+        isLiked: post.isLiked || false
+      })) || [];
     } catch (error) {
       console.error('Ошибка при получении постов', error);
       return [];
     }
   }
 
-  async createPost(content: string){
+  async createPost(content: string) {
     try {
-      const formData = new FormData();
-      formData.append('content', content);
       const response = await axios.post(
-        `${this.BASE_API_URL}/post/create`,
-        {content},
-        { 
-          headers: { 
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          } 
-        }
+        `${this.http}/post/create`,
+        { content },
+        this.getAuthConfig()
       );
-      return response.data;
+      return {
+        ...response.data,
+        showComments: false,
+        newComment: '',
+        isLiked: false,
+        comments: [],
+        likesCount: 0
+      };
     } catch (error) {
       console.error('Error creating post:', error);
       throw error;
@@ -51,14 +58,81 @@ export class PostService {
   async deletePost(postId: string): Promise<void> {
     try {
       await axios.delete(
-        `${this.BASE_API_URL}/posts/${postId}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        `${this.http}/posts/${postId}`,
+        this.getAuthConfig()
       );
     } catch (error) {
       console.error('Error deleting post:', error);
       throw error;
     }
   }
+
+  async likePost(postId: string) {
+    try {
+      const response = await axios.post(
+        `${this.http}/post/${postId}/like`,
+        {},
+        this.getAuthConfig()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error liking post:', error);
+      throw error;
+    }
+  }
+
+  async unlikePost(postId: string) {
+    try {
+      const response = await axios.delete(
+        `${this.http}/post/${postId}/like`,
+        this.getAuthConfig()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error unliking post:', error);
+      throw error;
+    }
+  }
+
+  async getComments(postId: string) {
+    try {
+      const response = await axios.get(
+        `${this.http}/post/${postId}/comments`,
+        this.getAuthConfig()
+      );
+      return response.data.comments || [];
+    } catch (error) {
+      console.error('Error getting comments:', error);
+      return [];
+    }
+  }
+
+  async addComment(postId: string, text: string) {
+    try {
+      const response = await axios.post(
+        `${this.http}/post/${postId}/comments`,
+        { text },
+        this.getAuthConfig()
+      );
+      return response.data.comment;
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      throw error;
+    }
+  }
+
+  async deleteComment(postId: string, commentId: string) {
+    try {
+      await axios.delete(
+        `${this.http}/posts/${postId}/comments/${commentId}`,
+        this.getAuthConfig()
+      );
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      throw error;
+    }
+  }
+
 
   
 }

@@ -120,7 +120,7 @@ export class SettingProfileComponent {
     }
   }
 
-  onfileSelected(event: Event){
+  async  onfileSelected(event: Event){
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
@@ -136,7 +136,20 @@ export class SettingProfileComponent {
         return;
       }
 
-      this.user.avatar = file;
+      try {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.user.avatar = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      const response = await this.profile.uploadAvatar(file, this._id);
+      this.user.avatar = response.user.avatar; // Обновляем URL с сервера
+      this.error = "";
+      } catch (error) {
+      console.error('Ошибка загрузки аватара:', error);
+      this.error = "Ошибка загрузки аватара";
+      }
       this.error = " ";
     }
   }

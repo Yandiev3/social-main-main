@@ -2,7 +2,7 @@
   <div class="profile-container">
     <div class="settinginfo-profile">
       <div class="avatar-container">
-        <img [src]="user?.avatar" alt="ProfileAvatar" />
+        <img [src]="user?.avatar || 'http://localhost:5000/uploads/default/nophoto.png'" />
       </div>
       <div class="username">
         <h1 class="h4">{{ user?.name }}</h1>
@@ -84,6 +84,8 @@
             #fileInput
             accept="image/*"
             style="display: none"
+            name="avatar"
+            (change)="onfileSelected($event)"
           />
           <p>Перетащите изображение или Загрузите</p>
           <p class="resolution-info">(разрешение до 1,240 x 1,240 px)</p>

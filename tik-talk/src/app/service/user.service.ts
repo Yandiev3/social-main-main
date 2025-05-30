@@ -32,7 +32,7 @@ export class UserService {
   
   getProfile(){
     const headers = this.getAuthHeaders();
-    return this.http.get(`${this.apiUrl}/profile`, { headers });
+    return this.http.get(`http://localhost:5000/profile/:id`, { headers });
   }
 
 
@@ -63,13 +63,19 @@ export class UserService {
     
     const headers = {
       Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
     };
 
-    return axios.post(`${this.apiUrl}/setting/update/${userId}`, formData, { headers })
-      .then(response => response.data)
-      .catch(error => {
-        console.error('Error uploading avatar:', error);
-        throw error;
-      });
+    try {
+    const response = await axios.patch(
+      `${this.apiUrl}/setting/update/${userId}`, 
+      formData, 
+      { headers }
+    );
+    return response.data;
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      throw error;
+    }
   }
 }

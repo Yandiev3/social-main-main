@@ -1,6 +1,6 @@
 const Router = require("express");
 const router = new Router();
-const postController = require("../controllers/postController");
+const postController = require("../controllers/PostController");
 const authMiddleware = require("../middlewares/authMiddleware");
 //const upload = require("../middlewares/upload");
 
@@ -11,7 +11,9 @@ router.get("/user",  authMiddleware, postController.getAllPosts);
 // router.put("/posts/:id", checkAuth, upload, updatePost);
 // router.delete("/posts/:id", checkAuth, deletePost);
 
-// app.get("/posts", authMiddleware, getAllPosts);
-// app.post("/post", authMiddleware, createPost);
+router.post("/:postId/like", authMiddleware, postController.likePost);
+router.post("/:postId/comments", authMiddleware, postController.addComment);
+router.get("/:postId/comments", authMiddleware, postController.getComments);
+
 
 module.exports = router;

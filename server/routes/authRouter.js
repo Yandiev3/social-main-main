@@ -17,7 +17,10 @@ router.post("/registration", upload.single("avatar"), [
 ]);
  router.post("/login",  controller.login);
  router.get("/users",  controller.getUsers);
- router.get("/profile", authMiddleware, controller.getMe);
- router.patch("/setting/update/:id", upload.single("avatar"), controller.updateUser, authMiddleware);
+ router.get("/profile/setting/:id", authMiddleware, controller.getMe);
+ router.get("/profile/:id", authMiddleware, controller.getMe);
+ router.patch("/setting/update/:id", authMiddleware, upload.single("avatar"), controller.updateUser);
+
+ //router.get("/profile/:id", authMiddleware, controller.Profile); //Переход на страницу профиля пользователя
 
 module.exports = router;
