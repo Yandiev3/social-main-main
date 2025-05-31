@@ -10,6 +10,7 @@ export const routes: Routes = [
     {path: 'login', component: LoginPageComponent},
     {path: 'search', component: SearchComponent},
     {path: '', component: ProfilePageComponent},
-    {path: 'profile/setting/:id', component: SettingProfileComponent},
+    {path: 'profile/:id', component: ProfilePageComponent},
+    {path: 'auth/profile/setting/:id', component: SettingProfileComponent},
     {path: 'chats', component: ChatsComponent},
 ];

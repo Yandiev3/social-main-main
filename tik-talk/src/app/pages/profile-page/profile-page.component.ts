@@ -62,9 +62,6 @@ export class ProfilePageComponent {
   }
 
 
-
-
-
   // Добавьте эти методы в ваш ProfilePageComponent
 
 async toggleLike(post: any) {

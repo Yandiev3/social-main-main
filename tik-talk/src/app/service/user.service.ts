@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import axios from "axios";
 import { Observable } from "rxjs";
-
+import { ActivatedRoute } from "@angular/router";
 @Injectable({
   providedIn: "root",
 })
@@ -10,7 +10,7 @@ export class UserService {
   private profiles: any = [];
   apiUrl = "http://localhost:5000/auth";
   
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute,) {}
 
   async getProfiles() {
     try {
@@ -32,7 +32,13 @@ export class UserService {
   
   getProfile(){
     const headers = this.getAuthHeaders();
-    return this.http.get(`http://localhost:5000/profile/:id`, { headers });
+    const profileId = this.route.snapshot.paramMap.get('id');
+
+    if (this.profiles.id) {
+      return this.http.get(`http://localhost:5000/profile/${profileId}`, { headers });
+  } else {
+      return this.http.get(`${this.apiUrl}/profile/:id`, { headers });
+  }
   }
 
 

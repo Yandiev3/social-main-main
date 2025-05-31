@@ -113,7 +113,7 @@ export class SettingProfileComponent {
       this.user = { ...this.user, ...updatedData };
 
 
-      this.router.navigate(['/profile', this.user._id] );
+      this.router.navigate(['/'] );
     } catch (error) {
       console.error('Ошибка при обновлении профиля:', error);
       alert('Ошибка при обновлении профиля');

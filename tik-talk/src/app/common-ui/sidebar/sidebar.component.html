@@ -60,10 +60,10 @@
 </nav>
 
 <footer>
-    <button
+  <button
     *ngIf="user"
     class="menu-item"
-    [routerLink]="['/profile', user._id]"
+    [routerLink]="['/auth/profile/setting', user._id]"
     routerLinkActive="active"
   >
     <div class="container_profile">

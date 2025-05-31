@@ -16,7 +16,7 @@ app.use('/auth', authRouter);
 app.use('/uploads', express.static('uploads'));
 app.use('/post', postRouter);
 
-app.route('/profile/:id', authMiddleware, authController.Profile)
+app.route('/profile/:id', authController.Profile)
 
 
 const start = async () => {
