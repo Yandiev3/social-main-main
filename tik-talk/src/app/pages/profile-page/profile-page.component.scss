@@ -170,9 +170,9 @@ main{
     }
     
     .post-author {
-      display: flex;
-      flex-direction: column;
-      
+        display: flex;
+        align-items: baseline;
+        gap: 16px;      
       .post-author-name {
         font-weight: 700;
         font-size: 14px;

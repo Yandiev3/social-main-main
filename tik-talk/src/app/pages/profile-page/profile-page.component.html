@@ -64,7 +64,7 @@
         >
           <div class="post-header">
             <div class="post-author">
-              <span class="post-author-name">{{ post.us }}</span>
+              <span class="post-author-name">{{ user.name }}</span>
               <span class="post-date">{{
                 post.createdAt | date : "dd.MM.yyyy"
               }}</span>
@@ -91,7 +91,7 @@
                   stroke-width="2"
                 />
               </svg>
-              <span>{{ post.likesCount }}</span>
+              <span>{{ post.likeCount }}</span>
             </button>
 
             <button
@@ -120,14 +120,14 @@
             <div class="comment-list">
               <div class="comment-item" *ngFor="let comment of post.comments">
                 <img
-                  [src]="comment.author.avatar"
+                  [src]="comment.userId.avatar"
                   alt=""
                   class="comment-avatar"
                 />
                 <div class="comment-content">
                   <div class="comment-header">
                     <span class="comment-author">{{
-                      comment.author.name
+                      comment.userId.name
                     }}</span>
                     <span class="comment-date">{{
                       comment.createdAt | date : "dd.MM.yyyy"

@@ -10,7 +10,7 @@ const postSchema = new Schema({
   userId: { type: String, ref: "User", required: true},
   content: { type: String, required: true },
   // image: { type: String },      
-  likes: [{ type: String, default: 0 }],
+  likes: [{ type: Number, default: 0 }],
   comments: [{ type: commentSchema }],
   createdAt: { type: Date, default: Date.now},
     updatedAt: { type: Date, default: Date.now },

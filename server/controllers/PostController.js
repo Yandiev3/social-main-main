@@ -49,6 +49,20 @@ const Post = require("../models/Post");
     }
   };
 
+  getLike = async (req, res) => {
+    try {
+        const { postId } = req.params;
+
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: "Пост не найден" });
+        }
+      res.status(200).json({ likesCount: post.likes.length });
+    } catch (error) {
+      res.status(500).json({ message: "Ошибка сервера", error: error.message });
+    }
+ }
+
   const likePost = async (req, res) => {
   try {
     const { id: userId } = req.user;
@@ -134,4 +148,4 @@ const getComments = async (req, res) => {
 };
 
 
-  module.exports = {createPost, getAllPosts, likePost, addComment, getComments};
+  module.exports = {createPost, getAllPosts, likePost, addComment, getComments, getLike};

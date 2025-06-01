@@ -26,7 +26,7 @@ export class PostService {
         ...post,
         showComments: false,
         newComment: '',
-        isLiked: post.isLiked || false
+        likeCount: post.likeCount
       })) || [];
     } catch (error) {
       console.error('Ошибка при получении постов', error);
@@ -76,7 +76,7 @@ export class PostService {
       );
       return response.data;
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error('Error при лайке:', error);
       throw error;
     }
   }
@@ -89,20 +89,20 @@ export class PostService {
       );
       return response.data;
     } catch (error) {
-      console.error('Error unliking post:', error);
+      console.error('Error при отмене лайка:', error);
       throw error;
     }
   }
 
   async getComments(postId: string) {
-    try {
+    try { 
       const response = await axios.get(
         `${this.http}/post/${postId}/comments`,
         this.getAuthConfig()
       );
       return response.data.comments || [];
     } catch (error) {
-      console.error('Error getting comments:', error);
+      console.error('Error получении коментариев:', error);
       return [];
     }
   }
@@ -116,7 +116,7 @@ export class PostService {
       );
       return response.data.comment;
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('Error При добавлении коментария:', error);
       throw error;
     }
   }
@@ -128,7 +128,7 @@ export class PostService {
         this.getAuthConfig()
       );
     } catch (error) {
-      console.error('Error deleting comment:', error);
+      console.error('Error не удалилось:', error);
       throw error;
     }
   }

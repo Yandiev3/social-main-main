@@ -26,7 +26,7 @@ export class UserService {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
-    });
+    });    
   }
   
   
@@ -35,7 +35,7 @@ export class UserService {
     const profileId = this.route.snapshot.paramMap.get('id');
 
     if (this.profiles.id) {
-      return this.http.get(`http://localhost:5000/profile/${profileId}`, { headers });
+      return this.http.get(`http://localhost:5000/auth/profile/${profileId}`, { headers });
   } else {
       return this.http.get(`${this.apiUrl}/profile/:id`, { headers });
   }
@@ -62,7 +62,7 @@ export class UserService {
 
     async uploadAvatar(file: File, userId: string){
     const token = localStorage.getItem('token');
-    if (!token) throw new Error('No token available');
+    if (!token) throw new Error('Отсутствует токен авторизации');
     
     const formData = new FormData();
     formData.append('avatar', file);
@@ -80,7 +80,7 @@ export class UserService {
     );
     return response.data;
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      console.error('Ошибка при обновлении', error);
       throw error;
     }
   }
