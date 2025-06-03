@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../service/user.service';
 import { PostService } from '../../service/post.service';
@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./profile-page.component.scss']
 })
 export class ProfilePageComponent {
-  user: any = { stack: [] };
+  user: any = { _id: '', stack: [] };
   posts: any[] = [];
   newPostContent: string = '';
   // selectedImage: File | null = null;
@@ -21,7 +21,8 @@ export class ProfilePageComponent {
   constructor(
     private router: Router, 
     private userService: UserService,
-    private postService: PostService
+    private postService: PostService,
+    // private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -41,14 +42,24 @@ export class ProfilePageComponent {
     });
   }
   async loadPosts() {
-    this.posts = await this.postService.fetchPosts();
+        try {
+      this.posts = await this.postService.fetchPosts();
+      this.posts.forEach(post => {
+        post.isLiked = post.likes?.includes(this.user._id) || false;
+        post.commentsCount = post.comments?.length || 0;
+        post.isEditing = false;
+      });
+
+    } catch (error) {
+      console.error("Ошибка при загрузке постов", error);
+    }
   }
 
   // onImageSelected(event: any) {
   //   this.selectedImage = event.target.files[0];
   // }
 
-  async createPost() {
+async createPost() {
     if (!this.newPostContent.trim()) return;
 
     try {
@@ -59,18 +70,67 @@ export class ProfilePageComponent {
     } catch (error) {
       console.error('Ошибка при создании post:', error);
     }
+}
+
+  async savePost(post: any) {
+    if (!post.editedContent?.trim()) return;
+    
+    try {
+      await this.postService.updatePost(post._id, post.editedContent);
+      post.content = post.editedContent;
+      post.isEditing = false;
+    } catch (error) {
+      console.error('Ошибка при обновлении поста:', error);
+    }
+  }
+
+  async deletePost(post: any) {
+    const confirmDelete = confirm('Вы уверены, что хотите удалить этот пост?');
+    if (!confirmDelete) return;
+
+    try {
+      await this.postService.deletePost(post._id);
+      this.posts = this.posts.filter(p => p._id !== post._id);
+    } catch (error) {
+      console.error('Ошибка при удалении поста:', error);
+    }
+  }
+
+  startEditPost(post: any) {
+    post.editedContent = post.content;
+    post.isEditing = true;
+    post.showMenu = false;
+  }
+
+  cancelEdit(post: any) {
+    post.isEditing = false;
+  }
+
+  togglePostMenu(post: any) {
+    post.showMenu = !post.showMenu;
   }
 
 async toggleLike(post: any) {
+  const originalState = {
+      isLiked: post.isLiked,
+      likes: [...post.likes],
+      likesCount: post.likesCount
+    };
+
   try {
     if (post.isLiked) {
       await this.postService.unlikePost(post._id);
-      post.likesCount--;
+      post.likes = post.likes.filter((id: string) => id !== this.user._id);
+    // this.cdr.detectChanges();
     } else {
       await this.postService.likePost(post._id);
-      post.likesCount++;
+      post.likes = post.likes || [];
+      post.likes.push(this.user._id);
     }
+    
     post.isLiked = !post.isLiked;
+    post.likesCount = post.likes?.length || 0;
+  
   } catch (error) {
     console.error('Ошибка при лайке:', error);
   }
@@ -98,8 +158,8 @@ async addComment(post: any) {
   try {
     const newComment = await this.postService.addComment(post._id, post.newComment);
     post.comments = post.comments || [];
-    post.comments.unshift(newComment);
-    post.commentsCount++;
+    post.comments.push(newComment);
+    post.commentsCount = (post.commentsCount || 0) + 1;
     post.newComment = '';
   } catch (error) {
     console.error('Ошибка при добавлении комментария:', error);

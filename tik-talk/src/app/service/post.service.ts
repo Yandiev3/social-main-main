@@ -26,7 +26,9 @@ export class PostService {
         ...post,
         showComments: false,
         newComment: '',
-        likeCount: post.likeCount
+        isLiked: false,
+        likeCount: post.likes?.length || 0,
+        commentsCount: post.comments?.length || 0
       })) || [];
     } catch (error) {
       console.error('Ошибка при получении постов', error);
@@ -55,16 +57,14 @@ export class PostService {
     }
   }
 
-  async deletePost(postId: string): Promise<void> {
-    try {
-      await axios.delete(
-        `${this.http}/posts/${postId}`,
-        this.getAuthConfig()
-      );
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      throw error;
-    }
+  async updatePost(postId: string, content: string){
+  const headers = this.getAuthConfig();
+  return axios.put(`${this.http}/post/${postId}`, { content });
+  }
+
+  async deletePost(postId: string){
+  const headers = this.getAuthConfig();
+  return axios.delete(`${this.http}/post/${postId}`);
   }
 
   async likePost(postId: string) {

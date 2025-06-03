@@ -4,7 +4,6 @@ const User = new Schema({
   username: { type: String, unique: true},
   avatar: {type: String, default: "http://localhost:5000/uploads/default/nophoto.png"},
   city: {type: String, default: ""},
-  name: { type: String},
   lastname: { type: String, default: "Lastname"},
   age: { type: Number, default: 0 },
   email: { type: String, default: ""},

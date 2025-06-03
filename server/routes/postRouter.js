@@ -7,11 +7,13 @@ const authMiddleware = require("../middlewares/authMiddleware");
 
 router.post("/create", authMiddleware, postController.createPost);
 //router.get("/posts", getAllPosts);
+
 router.get("/user",  authMiddleware, postController.getAllPosts);
-// router.put("/posts/:id", checkAuth, upload, updatePost);
-// router.delete("/posts/:id", checkAuth, deletePost);
+router.put("/:postId", authMiddleware, postController.updatePost);
+router.delete("/:postId", authMiddleware, postController.deletePost);
 
 router.post("/:postId/like", authMiddleware, postController.likePost);
+router.delete("/:postId/like", authMiddleware, postController.likePost);
 router.get("/:postId/like", authMiddleware, postController.getLike);
 
 router.post("/:postId/comments", authMiddleware, postController.addComment);
