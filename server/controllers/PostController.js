@@ -159,7 +159,7 @@ const getComments = async (req, res) => {
 
 const updatePost = async (req, res) => {
   try {
-    const { id: userId, roles } = req.user;
+    const { id: userId, roles = [] } = req.user;
     const { postId } = req.params;
     const { content } = req.body;
 
@@ -188,9 +188,8 @@ const updatePost = async (req, res) => {
 
 const deletePost = async (req, res) => {
   try {
-    const { id: userId, roles } = req.user;
+    const { id: userId, roles = [] } = req.user;
     const { postId } = req.params;
-
     const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({ message: "Пост не найден" });

@@ -59,12 +59,12 @@ export class PostService {
 
   async updatePost(postId: string, content: string){
   const headers = this.getAuthConfig();
-  return axios.put(`${this.http}/post/${postId}`, { content });
-  }
+  return axios.put(`${this.http}/post/${postId}`, { content }, headers);
+}
 
   async deletePost(postId: string){
   const headers = this.getAuthConfig();
-  return axios.delete(`${this.http}/post/${postId}`);
+  return axios.delete(`${this.http}/post/${postId}`, headers);
   }
 
   async likePost(postId: string) {

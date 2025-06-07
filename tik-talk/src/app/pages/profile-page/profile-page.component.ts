@@ -47,7 +47,7 @@ export class ProfilePageComponent {
       this.posts.forEach(post => {
         post.isLiked = post.likes?.includes(this.user._id) || false;
         post.commentsCount = post.comments?.length || 0;
-        post.isEditing = false;
+        post.isEditing = false
       });
 
     } catch (error) {
