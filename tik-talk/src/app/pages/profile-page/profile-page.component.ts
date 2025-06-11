@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserService } from '../../service/user.service';
 import { PostService } from '../../service/post.service';
 import { DatePipe, NgFor, NgIf } from '@angular/common';
@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 export class ProfilePageComponent {
   user: any = { _id: '', stack: [] };
   posts: any[] = [];
+  userId: any = ""
   newPostContent: string = '';
   // selectedImage: File | null = null;
 
@@ -22,32 +23,36 @@ export class ProfilePageComponent {
     private router: Router, 
     private userService: UserService,
     private postService: PostService,
+    private route: ActivatedRoute
     // private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.loadProfile();
-    this.loadPosts();
+    const profileId = this.route.snapshot.paramMap.get('id');
+    this.userId = profileId
+    this.loadProfile(this.userId);
+    this.loadPosts(this.userId);
+    
   }
 
-  loadProfile() {
-    this.userService.getProfile().subscribe({
+  loadProfile(profileId: any) {
+    this.userService.getProfile(profileId).subscribe({
       next: (res: any) => {
         this.user = res;
-        this.loadPosts();
+        this.loadPosts(profileId);
       },
       error: (error: any) => {
         console.error("Ошибка при получении", error);
       },
     });
   }
-  async loadPosts() {
+  async loadPosts(profileId: any) {
         try {
-      this.posts = await this.postService.fetchPosts();
+      this.posts = await this.postService.fetchPosts(this.userId);
       this.posts.forEach(post => {
         post.isLiked = post.likes?.includes(this.user._id) || false;
         post.commentsCount = post.comments?.length || 0;
-        post.isEditing = false
+        post.isEditing = false;
       });
 
     } catch (error) {
@@ -66,7 +71,7 @@ async createPost() {
       await this.postService.createPost(this.newPostContent);
       this.newPostContent = '';
       // this.selectedImage = null;
-      await this.loadPosts();
+      await this.loadPosts(this.userId);
     } catch (error) {
       console.error('Ошибка при создании post:', error);
     }

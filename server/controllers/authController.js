@@ -110,7 +110,10 @@ class AuthController {
 
   async getMe(req, res) {
     try {
-      const user = await User.findById(req.user.id); 
+      const id = req.params.id === "null" ? req.user.id : req.params.id
+
+      const user = await User.findById(id); 
+      
       if (!user) {
         return res.status(404).json({ message: "Ошибка при получение данных " });
       }

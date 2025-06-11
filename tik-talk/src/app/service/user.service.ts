@@ -30,15 +30,18 @@ export class UserService {
   }
   
   
-  getProfile(){
+  getProfile(profileId: any = null){
     const headers = this.getAuthHeaders();
-    const profileId = this.route.snapshot.paramMap.get('id');
-
-    if (this.profiles.id) {
-      return this.http.get(`http://localhost:5000/auth/profile/${profileId}`, { headers });
-  } else {
-      return this.http.get(`${this.apiUrl}/profile/:id`, { headers });
-  }
+    // const profileId = this.route.snapshot.paramMap.get('id');
+    console.log("profileId2", profileId);
+    
+    return this.http.get(`http://localhost:5000/auth/profile/${profileId}`, { headers });
+    
+  //   if (this.profiles.id) {
+  //     return this.http.get(`http://localhost:5000/auth/profile/${profileId}`, { headers });
+  // } else {
+  //     return this.http.get(`${this.apiUrl}/profile/:id`, { headers });
+  // }
   }
 
 

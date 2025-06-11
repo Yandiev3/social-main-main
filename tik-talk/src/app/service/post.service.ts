@@ -16,10 +16,10 @@ export class PostService {
     };
   }
 
-  async fetchPosts() {
+  async fetchPosts(profileId: any) {
     try {
       const response = await axios.get(
-        `${this.http}/post/user`, 
+        `${this.http}/post/user/${profileId}`, 
         this.getAuthConfig()
       );
       return response.data.posts?.map((post: any) => ({

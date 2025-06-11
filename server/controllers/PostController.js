@@ -43,7 +43,9 @@ const User = require("../models/User")
 
  const getAllPosts = async (req, res) => {
     try {
-        const { id } = req.user;
+        // const { id } = req.user;
+        const id = req.params.id === "null" ? req.user.id : req.params.id
+        console.log(id);
 
         const posts = await Post.find({ userId: id }).populate('userId', 'name avatar').sort({ createdAt: -1 });
         // console.log(id);
