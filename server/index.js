@@ -6,6 +6,7 @@ const postRouter = require("./routes/postRouter");
 const  { createPost, getAllPosts } = "./controllers/postController";
 const authMiddleware = require("./middlewares/authMiddleware");
 const authController = require("./controllers/authController");
+const chatRoute = require("./routes/chatRoute");
 
 const PORT = process.env.PORT || 5000;
 const app = express({ limit: "100mb" });
@@ -18,6 +19,7 @@ app.use('/post', postRouter);
 
 app.route('/profile/:id', authController.Profile)
 
+app.use("/chat", chatRoute);
 
 const start = async () => {
   try {

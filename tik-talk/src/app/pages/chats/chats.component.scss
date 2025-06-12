@@ -1,74 +1,288 @@
 .chat {
+  display: flex;
+  margin-left: 24px;
+  border: 1px solid #ffffff;
+  height: calc(100vh - 44px);
+  background: #000;
+
+  &__left {
+    width: 100%;
+    max-width: 300px;
     display: flex;
-    margin-left: 24px;
-    border: 1px solid #FFFFFF;
-    height: calc(100vh - 44px);
-    background: #000;
+    flex-direction: column;
+    border-right: 1px solid #fff;
 
-    &__left {
-        width: 100%;
-        max-width: 300px;
+    .search {
+      height: 44px;
+      background: red;
+      margin: 16px 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      input {
         display: flex;
-        flex-direction: column;
-        border-right: 1px solid #fff;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        color: #fff;
+        border: 0;
+        border-bottom: 1px solid #fff;
+        outline: none;
+      }
 
-        .search {
-            height: 44px;
-            background: red;
-            margin: 16px 20px;
-            position: relative;
+      .close {
+        position: absolute;
+        right: 0;
+      }
+    }
+
+    .chats {
+      border-top: 1px solid #fff;
+      display: flex;
+      flex-direction: column;
+
+      &__one {
+        display: flex;
+        gap: 10px;
+        padding: 20px;
+        border-bottom: 1px solid #fff;
+        cursor: pointer;
+
+        .avatar {
+          img {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+            border-radius: 50%;
+          }
+        }
+
+        .chat__file {
+          display: flex;
+          flex-direction: column;
+
+          .chat__top {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            color: #ffffffbf;
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: 0px;
 
-            input {
-                display: flex;
-                width: 100%;
-                height: 100%;
-                background: #000;
-                color: #fff;
-                border: 0;
-                border-bottom: 1px solid #fff;
-                outline: none;
+            p {
+              margin: 0;
             }
+          }
 
-            .close {
-                position: absolute;
-                right: 0;
-            }
+          .chat__bottom {
+            min-width: 218px;
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: 0px;
+          }
+        }
+      }
+    }
+  }
+
+  &__right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #fff;
+      justify-content: space-between;
+      padding: 16px 20px;
+      height: 44px;
+
+      button {
+        width: 44px;
+        height: 44px;
+        background: transparent;
+        cursor: pointer;
+        border: 1px solid #fff;
+        svg {
+        }
+      }
+      .user__info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .avatar {
+          img {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+
+    .dialog__chat {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+
+      &-one {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 253px);
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        .date {
+          font-weight: 700;
+          font-size: 12px;
+          line-height: 16px;
+          letter-spacing: 0px;
+          text-align: center;
+          padding: 6px 30px;
+          background-color: #444;
+          width: max-content;
+          margin: 0 auto;
+          color: #ffffff;
         }
 
         .chats {
-            border-top: 1px solid #fff;
-           display: flex;
-           flex-direction: column;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
 
-           &__one {
+          .chats__right {
             display: flex;
-            gap: 10px;
-            padding: 20px;
-            border-bottom: 1px solid #fff;
+            align-items: start;
+            flex-direction: row;
 
+            .text_right {
+                position: relative;
+                font-weight: 500;
+                font-size: 14px;
+                line-height: 21px;
+                letter-spacing: 0px;
+                text-align: right;
+                background-color: #404040;
+                padding: 8px 16px;
+                width: max-content;
+                color: #fff;
+
+                &::after {
+                  content: "";
+                  position: absolute;
+                  top: -7px;
+                  left: -2px;
+                  width: 0;
+                  height: 0;
+                  border-style: solid;
+                  border-width: 10px 0 10px 10px;
+                  border-color: transparent transparent transparent #000;
+                  z-index: 2;
+                  transform: rotate(-135deg);
+                }
+              }
+          }
+
+          &__left {
+            display: flex;
+            align-items: start;
+            flex-direction: row-reverse;
+            gap: 12px;
             .avatar {
-                img {
-                    width: 32px;
-                    height: 32px;
-                    object-fit: cover;
-                    border-radius: 50%;
-                }
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: red;
             }
 
-            .chat__file {
-                display: flex;
-                flex-direction: column;
+            .user__inform {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              &-title {
+                font-weight: 400;
+                font-size: 12px;
+                line-height: 16px;
+                color: #fff;
+                letter-spacing: 0px;
+              }
 
-                .chat__top {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
+              .text {
+                position: relative;
+                font-weight: 500;
+                font-size: 14px;
+                line-height: 21px;
+                letter-spacing: 0px;
+                text-align: right;
+                background-color: var(--primary-color);
+                padding: 8px 16px;
+                width: max-content;
+                color: #000;
+
+                &::after {
+                  content: "";
+                  position: absolute;
+                  top: -7px;
+                  right: -2px;
+                  width: 0;
+                  height: 0;
+                  border-style: solid;
+                  border-width: 10px 0 10px 10px;
+                  border-color: transparent transparent transparent #000;
+                  z-index: 2;
+                  transform: rotate(-45deg);
                 }
+              }
             }
-           }
-
+          }
         }
+      }
+
+      &-input {
+        border: 1px solid #fff;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        
+        .avatar {
+          background: red;
+          width: 32px;
+          height: 32px;
+          margin-right: 12px;
+          border-radius: 50%;
+        }
+
+        input {
+          height: 44px;
+          width: 100%;
+          border: 0;
+          color: #fff;
+          background: transparent;
+          outline: none;
+
+          
+        }
+
+        button {
+          width: 44px;
+          height: 100%;
+          background: var(--primary-color);
+          border: 0;
+          cursor: pointer;
+        }
+      }
     }
+  }
 }
