@@ -1,9 +1,8 @@
 const Chat = require("../models/Chat");
 const Message = require("../models/message");
-const Car = require("../models/Car");
 const User = require("../models/User");
 
-const { getIO } = require("../socket");
+// const { getIO } = require("../socket");
 
 class chatController {
   async createOrGetChat(req, res) {

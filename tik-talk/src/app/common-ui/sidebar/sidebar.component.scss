@@ -52,7 +52,7 @@
 
 
 footer .menu-item {
-    padding: 25px 12px; 
+    padding: 0px 12px; 
     grid-template-columns: 1fr max-content; 
     .container_profile {
         width: 100%;
@@ -79,6 +79,7 @@ footer {
         width: 32px;
         height: 32px;
         border-radius: 50%;
+        object-fit: cover;
     }
     
     .profile-card__name {
