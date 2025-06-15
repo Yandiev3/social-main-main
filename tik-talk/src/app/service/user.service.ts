@@ -87,4 +87,50 @@ export class UserService {
       throw error;
     }
   }
+  
+  async subscribe(profileId: string, token: string) {
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+  try {
+    const response = await axios.post(
+      `${this.apiUrl}/subscribe/${profileId}`, 
+      {}, 
+      { headers }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при подписке:', error);
+    throw error;
+  }
+}
+
+async unsubscribe(profileId: string, token: string) {
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+  try {
+    const response = await axios.delete(
+      `${this.apiUrl}/subscribe/${profileId}`, 
+      { headers }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при отписке:', error);
+    throw error;
+  }
+}
+
+  async checkSubscription(profileId: string, token: string) {
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+  try {
+    const response = await axios.get(`${this.apiUrl}/subscribe/check/${profileId}`, { headers });
+    return response.data.isSubscribed;
+  } catch (error) {
+    console.error('Ошибка при проверке подписки:', error);
+    return false;
+  }
+}
 }

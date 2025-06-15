@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const { array } = require("../middlewares/upload");
 
 const User = new Schema({
   username: { type: String, unique: true},
@@ -13,8 +14,8 @@ const User = new Schema({
   stack: [{type: String}],
   name: { type: String, default: "Name" },
   about: { type: String, default: "Недавно тут"},
-  subscribe: { type: String, default: "Нет подписок"},
-  subscribers: { type: String, default: "0"},
+  subscribers: [{ type: String, ref: "User" }],
+  subscriptions: [{ type: String, ref: "User" }],
   posts: [{type: Schema.Types.ObjectId, ref: "Posts"}]
 });
 

@@ -27,6 +27,10 @@ img {
 
 .button-wrapper {
     display: flex;
+    &.send{
+        align-items: center;
+        width: 100%;
+    }
 }
 
 .btn_setting {
@@ -53,6 +57,67 @@ img {
     svg {
         width: 14px;
         height: 14px;
+        color: var(--dark-color);
+    }
+}
+
+.btn_user{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn_subscribe{
+    border: 0;
+    color: #000;
+    background: #AE7AFF;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    border-radius: 2px;
+    font-size: 14px;
+    line-height: 24px;
+    letter-spacing: 0px;
+    &:hover,
+    &:focus {
+        background: var(--btn-hover-color);
+    }
+    
+    svg {
+        width: 20px;
+        height: 20px;
+        color: var(--dark-color);
+    }
+}
+
+.btn_send{
+     display: flex;
+    gap: 12px;
+    align-items: center;
+    background-color: var(--primary-color);
+    border: none;
+    padding: 0px 12px;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 24px;
+    width: 44px;
+    height: 44px;
+    color: var(--dark-color);
+    border-radius: 2px;
+    cursor: pointer;
+    
+    &:hover,
+    &:focus {
+        background: var(--btn-hover-color);
+    }
+    
+    svg {
+        width: 24px;
+        height: 24px;
         color: var(--dark-color);
     }
 }

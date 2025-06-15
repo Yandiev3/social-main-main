@@ -170,5 +170,105 @@ async updateUser(req, res) {
   }
 }
 
+  async subscribe(req, res) {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: "Пользователь не авторизован" });
+      }
+      const userId = req.user.id;
+      const targetUserId = req.params.id;
+
+      if (userId === targetUserId) {
+        return res.status(400).json({ message: "Нельзя подписаться на самого себя" });
+      }
+
+      const user = await User.findById(userId);
+      const targetUser = await User.findById(targetUserId);
+
+      if (!targetUser) {
+        return res.status(404).json({ message: "Пользователь не найден" });
+      }
+
+      if (!user.subscriptions) {
+        user.subscriptions = [];
+      }
+      if (!targetUser.subscribers) {
+        targetUser.subscribers = [];
+      }
+
+      if (user.subscriptions.includes(targetUserId)) {
+        return res.status(400).json({ message: "Вы уже подписаны на этого пользователя" });
+      }
+
+      user.subscriptions.push(targetUserId);
+      targetUser.subscribers.push(userId);
+
+      await user.save();
+      await targetUser.save();
+
+      res.status(200).json({ message: "Подписка успешно оформлена" });
+    } catch (error) {
+      console.error("Ошибка при подписке:", error);
+      res.status(500).json({ message: "Ошибка сервера" });
+    }
+  }
+
+  async unsubscribe(req, res) {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: "Пользователь не авторизован" });
+      }
+      const userId = req.user.id;
+      const targetUserId = req.params.id;
+
+      const user = await User.findById(userId);
+      const targetUser = await User.findById(targetUserId);
+
+      if (!targetUser) {
+        return res.status(404).json({ message: "Пользователь не найден" });
+      }
+
+      if (!user.subscriptions || !user.subscriptions.includes(targetUserId)) {
+        return res.status(400).json({ message: "Вы не подписаны на этого пользователя" });
+      }
+
+      user.subscriptions = user.subscriptions.filter(id => id.toString() !== targetUserId);
+      targetUser.subscribers = targetUser.subscribers.filter(id => id.toString() !== userId);
+
+      await user.save();
+      await targetUser.save();
+
+      res.status(200).json({ message: "Отписка успешно выполнена" });
+    } catch (error) {
+      console.error("Ошибка при отписке:", error);
+      res.status(500).json({ message: "Ошибка сервера" });
+    }
+  }
+
+
+  async checkSubscription(req, res) {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: "Пользователь не авторизован" });
+      }
+      const userId = req.user.id;
+      const targetUserId = req.params.id;
+
+       console.log("Проверка подписки:", { userId, targetUserId, token: req.headers.authorization });
+
+      const user = await User.findById(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "Пользователь не найден" });
+      }
+
+      const isSubscribed = user.subscriptions && user.subscriptions.includes(targetUserId);
+      
+      res.status(200).json({ isSubscribed });
+    } catch (error) {
+      console.error("Ошибка при проверке подписки:", error);
+      res.status(500).json({ message: "Ошибка сервера" });
+    }
+  }
 }
 module.exports = new AuthController();

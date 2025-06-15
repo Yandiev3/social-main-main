@@ -21,6 +21,9 @@ router.post("/registration", upload.single("avatar"), [
  router.get("/profile/:id", authMiddleware, controller.getMe);
  router.patch("/setting/update/:id", authMiddleware, upload.single("avatar"), controller.updateUser);
 
+ router.post("/subscribe/:id", authMiddleware, controller.subscribe);
+ router.delete("/subscribe/:id", authMiddleware, controller.unsubscribe);
+ router.get("/subscribe/check/:id", authMiddleware, controller.checkSubscription);
  //router.get("/profile/:id", authMiddleware, controller.Profile); //Переход на страницу профиля пользователя
 
 module.exports = router;

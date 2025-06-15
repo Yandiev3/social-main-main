@@ -3,8 +3,6 @@ const cors = require('cors');
 const { default: mongoose } = require("mongoose");
 const authRouter = require("./routes/authRouter");
 const postRouter = require("./routes/postRouter");
-const  { createPost, getAllPosts } = "./controllers/postController";
-const authMiddleware = require("./middlewares/authMiddleware");
 const authController = require("./controllers/authController");
 const chatRoute = require("./routes/chatRouter");
 

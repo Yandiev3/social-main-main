@@ -14,9 +14,11 @@ import { FormsModule } from '@angular/forms';
 })
 export class ProfilePageComponent {
   user: any = { _id: '', stack: [] };
+  currentUser: any = {};
   posts: any[] = [];
   userId: any = ""
   newPostContent: string = '';
+  isSubscribed: boolean = false;
   // selectedImage: File | null = null;
 
   constructor(
@@ -32,7 +34,12 @@ export class ProfilePageComponent {
     this.userId = profileId
     this.loadProfile(this.userId);
     this.loadPosts(this.userId);
-    
+     this.userService.getProfile().subscribe((res: any) => {
+      this.currentUser = res;
+      if (this.userId && this.currentUser._id !== this.userId) {
+        this.checkSubscriptionStatus();
+      }
+    });
   }
 
   loadProfile(profileId: any) {
@@ -170,4 +177,25 @@ async addComment(post: any) {
     console.error('Ошибка при добавлении комментария:', error);
   }
 }
+
+startNewChat() {
+  this.router.navigate(['/chat', this.user._id]);
+}
+
+async checkSubscriptionStatus() {
+    this.isSubscribed = await this.userService.checkSubscription(this.userId, this.currentUser.token);
+  }
+
+  async toggleSubscribe() {
+    try {
+      if (this.isSubscribed) {
+        await this.userService.unsubscribe(this.userId, this.currentUser.token);
+      } else {
+        await this.userService.subscribe(this.userId, this.currentUser.token);
+      }
+      this.isSubscribed = !this.isSubscribed;
+    } catch (error) {
+      console.error("Ошибка при изменении статуса подписки:", error);
+    }
+  }
 }
