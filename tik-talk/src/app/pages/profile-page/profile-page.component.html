@@ -8,61 +8,81 @@
     <span class="regular">{{ user?.username }}</span>
   </div>
 
-<div class="button-wrapper" *ngIf="user && currentUser._id === user._id">
+  <div class="button-wrapper" *ngIf="user && currentUser._id === user._id">
     <button
       class="btn_setting"
       [routerLink]="['/auth/profile/setting', user._id]"
       routerLinkActive="active"
     >
       Редактировать
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5.34342 8.65625C5.80175 9.11458 6.35384 9.34375 6.99967 9.34375C7.6455 9.34375 8.19759 9.11458 8.65592 8.65625C9.11425 8.19792 9.34342 7.64583 9.34342 7C9.34342 6.35417 9.11425 5.80208 8.65592 5.34375C8.19759 4.88542 7.6455 4.65625 6.99967 4.65625C6.35384 4.65625 5.80175 4.88542 5.34342 5.34375C4.88509 5.80208 4.65592 6.35417 4.65592 7C4.65592 7.64583 4.88509 8.19792 5.34342 8.65625ZM11.9685 7.65625L13.3747 8.75C13.5205 8.85417 13.5414 9 13.4372 9.1875L12.0935 11.5C12.0101 11.6458 11.8747 11.6875 11.6872 11.625L10.0309 10.9688C9.59342 11.2812 9.21842 11.5 8.90592 11.625L8.65592 13.375C8.61425 13.5625 8.51009 13.6562 8.34342 13.6562H5.65592C5.48925 13.6562 5.38509 13.5625 5.34342 13.375L5.09342 11.625C4.69759 11.4583 4.32259 11.2396 3.96842 10.9688L2.31217 11.625C2.12467 11.6875 1.98925 11.6458 1.90592 11.5L0.562175 9.1875C0.458008 9 0.478842 8.85417 0.624675 8.75L2.03092 7.65625C2.01009 7.51042 1.99967 7.29167 1.99967 7C1.99967 6.70833 2.01009 6.48958 2.03092 6.34375L0.624675 5.25C0.478842 5.14583 0.458008 5 0.562175 4.8125L1.90592 2.5C1.98925 2.35417 2.12467 2.3125 2.31217 2.375L3.96842 3.03125C4.40592 2.71875 4.78092 2.5 5.09342 2.375L5.34342 0.625C5.38509 0.4375 5.48925 0.34375 5.65592 0.34375H8.34342C8.51009 0.34375 8.61425 0.4375 8.65592 0.625L8.90592 2.375C9.30175 2.54167 9.67675 2.76042 10.0309 3.03125L11.6872 2.375C11.8747 2.3125 12.0101 2.35417 12.0935 2.5L13.4372 4.8125C13.5414 5 13.5205 5.14583 13.3747 5.25L11.9685 6.34375C11.9893 6.48958 11.9997 6.70833 11.9997 7C11.9997 7.29167 11.9893 7.51042 11.9685 7.65625Z" fill="currentColor"/>
-      </svg>
-    </button>
-</div>
-<div class="btn_user">
-<div class="button-wrapper" *ngIf="user && currentUser._id !== user._id">
-    <button class="btn_subscribe" (click)="toggleSubscribe()">
-      {{ isSubscribed ? 'Отписаться' : 'Подписаться' }}
       <svg
-            width="20"
-            height="20"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M6.46875 10.0938C7.69792 9.59375 8.875 9.34375 10 9.34375C11.125 9.34375 12.2917 9.59375 13.5 10.0938C14.7292 10.5729 15.3438 11.2083 15.3438 12V13.3438H4.65625V12C4.65625 11.2083 5.26042 10.5729 6.46875 10.0938ZM4 6.65625H6V8H4V10H2.65625V8H0.65625V6.65625H2.65625V4.65625H4V6.65625ZM11.875 7.21875C11.3542 7.73958 10.7292 8 10 8C9.27083 8 8.64583 7.73958 8.125 7.21875C7.60417 6.69792 7.34375 6.07292 7.34375 5.34375C7.34375 4.61458 7.60417 3.98958 8.125 3.46875C8.64583 2.92708 9.27083 2.65625 10 2.65625C10.7292 2.65625 11.3542 2.92708 11.875 3.46875C12.3958 3.98958 12.6562 4.61458 12.6562 5.34375C12.6562 6.07292 12.3958 6.69792 11.875 7.21875Z"
-              fill="black"
-            />
-          </svg>
+        width="14"
+        height="14"
+        viewBox="0 0 14 14"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M5.34342 8.65625C5.80175 9.11458 6.35384 9.34375 6.99967 9.34375C7.6455 9.34375 8.19759 9.11458 8.65592 8.65625C9.11425 8.19792 9.34342 7.64583 9.34342 7C9.34342 6.35417 9.11425 5.80208 8.65592 5.34375C8.19759 4.88542 7.6455 4.65625 6.99967 4.65625C6.35384 4.65625 5.80175 4.88542 5.34342 5.34375C4.88509 5.80208 4.65592 6.35417 4.65592 7C4.65592 7.64583 4.88509 8.19792 5.34342 8.65625ZM11.9685 7.65625L13.3747 8.75C13.5205 8.85417 13.5414 9 13.4372 9.1875L12.0935 11.5C12.0101 11.6458 11.8747 11.6875 11.6872 11.625L10.0309 10.9688C9.59342 11.2812 9.21842 11.5 8.90592 11.625L8.65592 13.375C8.61425 13.5625 8.51009 13.6562 8.34342 13.6562H5.65592C5.48925 13.6562 5.38509 13.5625 5.34342 13.375L5.09342 11.625C4.69759 11.4583 4.32259 11.2396 3.96842 10.9688L2.31217 11.625C2.12467 11.6875 1.98925 11.6458 1.90592 11.5L0.562175 9.1875C0.458008 9 0.478842 8.85417 0.624675 8.75L2.03092 7.65625C2.01009 7.51042 1.99967 7.29167 1.99967 7C1.99967 6.70833 2.01009 6.48958 2.03092 6.34375L0.624675 5.25C0.478842 5.14583 0.458008 5 0.562175 4.8125L1.90592 2.5C1.98925 2.35417 2.12467 2.3125 2.31217 2.375L3.96842 3.03125C4.40592 2.71875 4.78092 2.5 5.09342 2.375L5.34342 0.625C5.38509 0.4375 5.48925 0.34375 5.65592 0.34375H8.34342C8.51009 0.34375 8.61425 0.4375 8.65592 0.625L8.90592 2.375C9.30175 2.54167 9.67675 2.76042 10.0309 3.03125L11.6872 2.375C11.8747 2.3125 12.0101 2.35417 12.0935 2.5L13.4372 4.8125C13.5414 5 13.5205 5.14583 13.3747 5.25L11.9685 6.34375C11.9893 6.48958 11.9997 6.70833 11.9997 7C11.9997 7.29167 11.9893 7.51042 11.9685 7.65625Z"
+          fill="currentColor"
+        />
+      </svg>
     </button>
   </div>
+  <div class="btn_user">
+    <div class="button-wrapper" *ngIf="user && currentUser._id !== user._id">
+      <button class="btn_subscribe" (click)="toggleSubscribe(user)">
+        {{ isSubscribed ? "Отписаться" : "Подписаться" }}
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6.46875 10.0938C7.69792 9.59375 8.875 9.34375 10 9.34375C11.125 9.34375 12.2917 9.59375 13.5 10.0938C14.7292 10.5729 15.3438 11.2083 15.3438 12V13.3438H4.65625V12C4.65625 11.2083 5.26042 10.5729 6.46875 10.0938ZM4 6.65625H6V8H4V10H2.65625V8H0.65625V6.65625H2.65625V4.65625H4V6.65625ZM11.875 7.21875C11.3542 7.73958 10.7292 8 10 8C9.27083 8 8.64583 7.73958 8.125 7.21875C7.60417 6.69792 7.34375 6.07292 7.34375 5.34375C7.34375 4.61458 7.60417 3.98958 8.125 3.46875C8.64583 2.92708 9.27083 2.65625 10 2.65625C10.7292 2.65625 11.3542 2.92708 11.875 3.46875C12.3958 3.98958 12.6562 4.61458 12.6562 5.34375C12.6562 6.07292 12.3958 6.69792 11.875 7.21875Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+    </div>
 
-<div class="button-wrapper send" *ngIf="user && currentUser._id !== user._id">
-    <button
-      class="btn_send"
-      (click)="startNewChat()"
+    <div
+      class="button-wrapper send"
+      *ngIf="user && currentUser._id !== user._id"
     >
-      <svg width="24" height="24" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0.34375 12V7.34375L10.3438 6L0.34375 4.65625V0L14.3438 6L0.34375 12Z" fill="black"/>
-      </svg>
-
-    </button>
-</div>
-</div>
+      <button class="btn_send" (click)="startNewChat()">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 15 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0.34375 12V7.34375L10.3438 6L0.34375 4.65625V0L14.3438 6L0.34375 12Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
 </header>
 
 <main>
   <div class="main-content_container">
     <div class="main-content">
-      <div class="main-content_post" *ngIf="user && currentUser._id === user._id">
+      <div
+        class="main-content_post"
+        *ngIf="user && currentUser._id === user._id"
+      >
         <textarea
           type="text"
           maxlength="300"
           placeholder="Напишите что-нибудь?"
           rows="2"
-          [(ngModel)]="newPostContent" 
+          [(ngModel)]="newPostContent"
         ></textarea>
         <button (click)="createPost()">
           <svg
@@ -91,15 +111,33 @@
                 post.createdAt | date : "dd.MM.yyyy"
               }}</span>
             </div>
-            <div class="post-menu" *ngIf="user._id === post.userId._id || user.roles?.includes('Admin')">
+            <div
+              class="post-menu"
+              *ngIf="
+                user._id === post.userId._id || user.roles?.includes('Admin')
+              "
+            >
               <button class="menu-btn" (click)="togglePostMenu(post)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                    fill="currentColor"
+                  />
                 </svg>
               </button>
               <div class="menu-dropdown" *ngIf="post.showMenu">
-                <button class="menu-item" (click)="startEditPost(post)">Редактировать</button>
-                <button class="menu-item delete" (click)="deletePost(post)">Удалить</button>
+                <button class="menu-item" (click)="startEditPost(post)">
+                  Редактировать
+                </button>
+                <button class="menu-item delete" (click)="deletePost(post)">
+                  Удалить
+                </button>
               </div>
             </div>
           </div>
@@ -109,15 +147,26 @@
           </div>
 
           <div class="post-edit" *ngIf="post.isEditing">
-            <textarea [(ngModel)]="post.editedContent" maxlength="300"></textarea>
+            <textarea
+              [(ngModel)]="post.editedContent"
+              maxlength="300"
+            ></textarea>
             <div class="edit-actions">
-              <button class="cancel-btn" (click)="cancelEdit(post)">Отмена</button>
-              <button class="save-btn" (click)="savePost(post)">Сохранить</button>
+              <button class="cancel-btn" (click)="cancelEdit(post)">
+                Отмена
+              </button>
+              <button class="save-btn" (click)="savePost(post)">
+                Сохранить
+              </button>
             </div>
           </div>
 
           <div class="post-actions">
-            <button class="action-btn like-btn" [class.liked]="post.isLiked" (click)="toggleLike(post)">
+            <button
+              class="action-btn like-btn"
+              [class.liked]="post.isLiked"
+              (click)="toggleLike(post)"
+            >
               <svg
                 width="16"
                 height="16"
@@ -161,7 +210,10 @@
             <div class="comment-list">
               <div class="comment-item" *ngFor="let comment of post.comments">
                 <img
-                  [src]="comment.userId.avatar || 'http://localhost:5000/uploads/default/nophoto.png'"
+                  [src]="
+                    comment.userId.avatar ||
+                    'http://localhost:5000/uploads/default/nophoto.png'
+                  "
                   alt=""
                   class="comment-avatar"
                 />

@@ -90,11 +90,20 @@ class AuthController {
   }
 
   async Profile(req, res){
-    try{
-      const user = await User.findOne({_id: req.user.id});
-      console.log(user);
-    }catch(e){
+    try {
+      const id = req.params.id === "null" ? req.user.id : req.params.id
+
+      const user = await User.findById(id); 
       
+      if (!user) {
+        return res.status(404).json({ message: "Ошибка при получение данных " });
+      }
+      const { password, ...userData } = user._doc; 
+  
+      res.json(userData);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Ошибка при получении данных пользователя" });
     }
   }
 

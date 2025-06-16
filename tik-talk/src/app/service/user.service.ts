@@ -121,7 +121,12 @@ async unsubscribe(profileId: string, token: string) {
   }
 }
 
-  async checkSubscription(profileId: string, token: string) {
+  async checkSubscription(profileId: string) {
+
+    const token = localStorage.getItem('token');
+    if(!token){
+      return "Трубется авторизация!"
+    }
   const headers = {
     Authorization: `Bearer ${token}`
   };

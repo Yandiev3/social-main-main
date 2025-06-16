@@ -1,7 +1,13 @@
 <div class="profile">
   <div class="profile__one">
     <div class="search">
-      <input type="text" name="" id="" placeholder="Поиск..." (input)="onSearch($event)" />
+      <input
+        type="text"
+        name=""
+        id=""
+        placeholder="Поиск..."
+        (input)="onSearch($event)"
+      />
 
       <svg
         class="search"
@@ -60,8 +66,8 @@
 
       <div class="profiles__right">
         <button (click)="toggleSubscribe(profile)">
-          {{ isSubscribed ? 'Отписаться' : 'Подписаться' }}
-        <svg
+          {{ isSubscribed ? "Отписаться" : "Подписаться" }}
+          <svg
             width="20"
             height="20"
             viewBox="0 0 16 16"
@@ -87,8 +93,9 @@
               <path
                 d="M4 0.34375H10.6562V7H9.34375V2.59375L1.59375 10.3438L0.65625 9.40625L8.40625 1.65625H4V0.34375Z"
                 fill="black"
-              /></svg>
-            </span>
+              />
+            </svg>
+          </span>
         </button>
       </div>
     </div>

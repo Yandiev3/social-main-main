@@ -18,7 +18,6 @@ export class SearchComponent {
   filteredProfiles: any[] = [];
   currentUser: any = {};
   searchTerm: string = '';
-
   isAdmin: boolean = false;
   isSubscribed: boolean = false;
 
@@ -32,14 +31,14 @@ export class SearchComponent {
       this.currentUser = res;
       this.filteredProfiles = this.profiles.filter(profile => profile._id !== this.currentUser._id);
       
-      // Проверяем статус подписки для каждого профиля
-      const token = localStorage.getItem('token');
-      if (token) {
-        for (let profile of this.filteredProfiles) {
-          profile.isSubscribed = await this._userService.checkSubscription(profile, token);
-        }
-      }
+      this.isSubscribed = await this._userService.checkSubscription(this.currentUser.id);
+   console.log(   this.profiles);
+   
     });
+  }
+
+  async checkSubscriptionStatus() {  
+    this.isSubscribed = await this._userService.checkSubscription(this.currentUser.id);
   }
 
   onSearch(event: any) {
@@ -55,7 +54,7 @@ export class SearchComponent {
         profile.username.toLowerCase().includes(this.searchTerm)
       );
   }
-  
+
   async toggleSubscribe(profile: any) {
   const token = localStorage.getItem('token');
   if (!token) {

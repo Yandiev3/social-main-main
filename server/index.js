@@ -15,7 +15,7 @@ app.use('/auth', authRouter);
 app.use('/uploads', express.static('uploads'));
 app.use('/post', postRouter);
 
-app.route('/profile/:id', authController.Profile)
+
 
 app.use("/chat", chatRoute);
 

@@ -183,17 +183,26 @@ startNewChat() {
 }
 
 async checkSubscriptionStatus() {
-    this.isSubscribed = await this.userService.checkSubscription(this.userId, this.currentUser.token);
+  
+  
+    this.isSubscribed = await this.userService.checkSubscription(this.userId);
   }
 
-  async toggleSubscribe() {
+  async toggleSubscribe(profile: any) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+  
     try {
-      if (this.isSubscribed) {
-        await this.userService.unsubscribe(this.userId, this.currentUser.token);
+      if (profile.isSubscribed) {
+        await this.userService.unsubscribe(profile._id, token);
       } else {
-        await this.userService.subscribe(this.userId, this.currentUser.token);
+        await this.userService.subscribe(profile._id, token);
       }
-      this.isSubscribed = !this.isSubscribed;
+      // Toggle the subscription status for this specific profile
+      profile.isSubscribed = !profile.isSubscribed;
     } catch (error) {
       console.error("Ошибка при изменении статуса подписки:", error);
     }
