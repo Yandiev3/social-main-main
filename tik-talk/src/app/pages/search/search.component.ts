@@ -7,7 +7,7 @@ import { Token } from '@angular/compiler';
 
 @Component({
   selector: 'app-search',
-  imports: [NgFor, RouterModule],
+  imports: [NgFor, RouterModule, NgIf],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss'
 })
@@ -19,7 +19,6 @@ export class SearchComponent {
   currentUser: any = {};
   searchTerm: string = '';
   isAdmin: boolean = false;
-  isSubscribed: boolean = false;
 
   constructor(UserService: UserService, private router: Router, private profile: LoginService) {  
     this._userService = UserService;
@@ -30,15 +29,12 @@ export class SearchComponent {
     this._userService.getProfile().subscribe(async (res: any) => {
       this.currentUser = res;
       this.filteredProfiles = this.profiles.filter(profile => profile._id !== this.currentUser._id);
-      
-      this.isSubscribed = await this._userService.checkSubscription(this.currentUser.id);
-   console.log(   this.profiles);
-   
     });
   }
 
-  async checkSubscriptionStatus() {  
-    this.isSubscribed = await this._userService.checkSubscription(this.currentUser.id);
+  checkSubscriptionStatus(subscribers: any): boolean {
+    const userId = localStorage.getItem("id");  
+    return subscribers.some((item: string) => item === userId);
   }
 
   onSearch(event: any) {
@@ -63,7 +59,7 @@ export class SearchComponent {
   }
 
   try {
-    if (profile.isSubscribed) {
+    if (this.checkSubscriptionStatus(profile.subscribers)) {
       await this._userService.unsubscribe(profile._id, token);
     } else {
       await this._userService.subscribe(profile._id, token);

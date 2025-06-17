@@ -14,6 +14,6 @@ export class LoginService {
   }
 
   getProfile(){
-    return this.http.get(`${this.apiUrl}/profile` )
+    return this.http.get(`${this.apiUrl}/profile`);
   }
 }

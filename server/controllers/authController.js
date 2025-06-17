@@ -85,7 +85,7 @@ class AuthController {
       }
       const token = generateAccessToken(user._id, user.roles, user.stacks);
 
-      return res.status(200).json({ token: token });
+      return res.status(200).json({ token: token, id: user._id });
     } catch (e) {}
   }
 
@@ -224,9 +224,6 @@ async updateUser(req, res) {
 
   async unsubscribe(req, res) {
     try {
-      if (!req.user || !req.user.id) {
-        return res.status(401).json({ message: "Пользователь не авторизован" });
-      }
       const userId = req.user.id;
       const targetUserId = req.params.id;
 
@@ -242,6 +239,8 @@ async updateUser(req, res) {
       }
 
       user.subscriptions = user.subscriptions.filter(id => id.toString() !== targetUserId);
+      console.log(user.subscriptions);
+      
       targetUser.subscribers = targetUser.subscribers.filter(id => id.toString() !== userId);
 
       await user.save();

@@ -123,7 +123,7 @@ export class LoginPageComponent {
       next: (res: any) => {
         console.log('До сохранения токена', res.token)
         localStorage.setItem("token", res.token);
-        console.log(res.token);
+        localStorage.setItem("id", res.id);
         this.route.navigateByUrl("/");
         
       },

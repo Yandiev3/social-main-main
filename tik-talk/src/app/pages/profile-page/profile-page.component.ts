@@ -183,10 +183,8 @@ startNewChat() {
 }
 
 async checkSubscriptionStatus() {
-  
-  
-    this.isSubscribed = await this.userService.checkSubscription(this.userId);
-  }
+  this.isSubscribed = await this.userService.checkSubscription(this.userId);
+}
 
   async toggleSubscribe(profile: any) {
     const token = localStorage.getItem('token');
@@ -196,12 +194,13 @@ async checkSubscriptionStatus() {
     }
   
     try {
-      if (profile.isSubscribed) {
+      
+      if (this.isSubscribed) {
         await this.userService.unsubscribe(profile._id, token);
       } else {
         await this.userService.subscribe(profile._id, token);
       }
-      // Toggle the subscription status for this specific profile
+      await this.checkSubscriptionStatus();
       profile.isSubscribed = !profile.isSubscribed;
     } catch (error) {
       console.error("Ошибка при изменении статуса подписки:", error);
