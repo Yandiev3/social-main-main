@@ -16,7 +16,11 @@ const User = new Schema({
   about: { type: String, default: "Недавно тут"},
   subscribers: [{ type: String, ref: "User" }],
   subscriptions: [{ type: String, ref: "User" }],
-  posts: [{type: Schema.Types.ObjectId, ref: "Posts"}]
+  posts: [{type: Schema.Types.ObjectId, ref: "Posts"}],
+
+  isOnline: { type: Boolean },
+  lastSeen: { type: Date },
+  refreshToken: { type: String },
 });
 
 module.exports = model("User", User);

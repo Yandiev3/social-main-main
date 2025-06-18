@@ -2,24 +2,42 @@ const Chat = require("../models/Chat");
 const Message = require("../models/message");
 const User = require("../models/User");
 
-// const { getIO } = require("../socket");
+const { getIO } = require("../socket");
 
 class chatController {
   async createOrGetChat(req, res) {
-    const { user_send, user_get } = req.body;
-
     try {
-      let chat = await Chat.findOne({    
-        user_send,
-        user_get,
-      });
+      const { user_send, user_get } = req.body;
+      
+      // Проверка на существование пользователей
+      const [userSend, userGet] = await Promise.all([
+        User.findById(user_send),
+        User.findById(user_get)
+      ]);
+      
+      if (!userSend || !userGet) {
+        return res.status(404).json({ error: "Один из пользователей не найден" });
+      }
+
+      // Ищем существующий чат в обоих направлениях
+      let chat = await Chat.findOne({
+        $or: [
+          { user_send, user_get },
+          { user_send: user_get, user_get: user_send }
+        ]
+      }).populate('user_send user_get', 'avatar name lastname');
 
       if (!chat) {
-        chat = new Chat({        
+        chat = new Chat({
           user_send,
           user_get,
         });
         await chat.save();
+        
+        // Полноценно заполняем данные после сохранения
+        chat = await Chat.findById(chat._id)
+          .populate('user_send', 'avatar name lastname')
+          .populate('user_get', 'avatar name lastname');
 
         const io = getIO();
         io.to(user_send).emit("newChat", chat);
@@ -28,21 +46,27 @@ class chatController {
 
       res.status(200).json(chat);
     } catch (error) {
+      console.error("Error in createOrGetChat:", error);
       res.status(500).json({ error: "Ошибка при создании чата" });
-      console.log(error);
     }
   }
 
   async sendMessage(req, res) {
-    const {
-      chatId,
-      senderId,
-      recipientId,
-      content,
-      attachments = [],
-    } = req.body;
-
     try {
+      const {
+        chatId,
+        senderId,
+        recipientId,
+        content,
+        attachments = [],
+      } = req.body;
+
+      // Проверка существования чата
+      const chat = await Chat.findById(chatId);
+      if (!chat) {
+        return res.status(404).json({ error: "Чат не найден" });
+      }
+
       const message = new Message({
         chatId,
         senderId,
@@ -52,95 +76,146 @@ class chatController {
       });
       await message.save();
 
+      // Обновляем последнее сообщение в чате
+      const updatedChat = await Chat.findByIdAndUpdate(
+        chatId,
+        {
+          updatedAt: new Date(),
+          lastMessage: {
+            content,
+            senderId,
+            isRead: false,
+            sentAt: new Date(),
+          },
+        },
+        { new: true }
+      )
+        .populate('lastMessage.senderId', 'avatar name lastname')
+        .populate('user_send', 'avatar name lastname')
+        .populate('user_get', 'avatar name lastname');
+
       const io = getIO();
       io.to(chatId).emit("newMessage", message);
-
-      await Chat.findByIdAndUpdate(chatId, {
-        updatedAt: new Date(),
-        lastMessage: {
-          content,
-          senderId,
-          isRead: false,
-          sentAt: new Date(),
-        },
-      });
+      io.to(senderId).emit("chatUpdated", updatedChat);
+      io.to(recipientId).emit("chatUpdated", updatedChat);
 
       res.status(201).json(message);
     } catch (error) {
+      console.error("Error in sendMessage:", error);
       res.status(500).json({ error: "Ошибка при отправке сообщения" });
-      console.log(error);
     }
   }
 
   async getUserChats(req, res) {
-    const userId = req.user.id;
-
     try {
+      const userId = req.user.id;
+
       const chats = await Chat.find({
         $or: [{ user_send: userId }, { user_get: userId }],
       })
         .sort({ updatedAt: -1 })
-        .limit(20)
-        // .populate("advertisementId", "images brand model price")
-        // .populate("user_send", "avatar name surname")
-        // .populate("user_get", "avatar name surname")
-        // .populate("lastMessage.senderId", "avatar name surname");
+        .populate("user_send", "avatar name lastname")
+        .populate("user_get", "avatar name lastname")
+        .populate("lastMessage.senderId", "avatar name lastname");
 
-      res.status(200).json(chats);
+      // Добавляем информацию о непрочитанных сообщениях
+      const chatsWithUnread = await Promise.all(
+        chats.map(async (chat) => {
+          const unreadCount = await Message.countDocuments({
+            chatId: chat._id,
+            recipientId: userId,
+            isRead: false,
+          });
+          return {
+            ...chat.toObject(),
+            unreadCount,
+          };
+        })
+      );
+
+      res.status(200).json(chatsWithUnread);
     } catch (error) {
+      console.error("Error in getUserChats:", error);
       res.status(500).json({ error: "Ошибка при получении чатов" });
-      console.log(error);
     }
   }
 
   async getChatToId(req, res) {
     try {
       const chatId = req.params.chatId;
+      const userId = req.user.id;
 
       if (chatId.length !== 24) {
-        return res
-          .status(404)
-          .json({ message: "Чата с таким ID не существует!" });
+        return res.status(404).json({ message: "Чата с таким ID не существует!" });
       }
 
-      const chatInfo = await Chat.findById(chatId);
+      const chatInfo = await Chat.findOne({
+        _id: chatId,
+        $or: [{ user_send: userId }, { user_get: userId }],
+      })
+        .populate('user_send', 'avatar name lastname')
+        .populate('user_get', 'avatar name lastname');
 
       if (!chatInfo) {
-        return res
-          .status(404)
-          .json({ message: "Чата с таким ID не существует!" });
+        return res.status(404).json({ message: "Чата с таким ID не существует или у вас нет доступа!" });
       }
 
-      const chatMessages = await Message.find({ chatId }).sort({
-        createdAt: 1,
-      });
+      const chatMessages = await Message.find({ chatId }).sort({ createdAt: 1 });
 
-      const advertisementInfo = await Car.findById(
-        chatInfo.advertisementId
-      ).select("make model year price images");
-
-      const sellerInfo = await User.findById(chatInfo.user_get).select(
-        "name surname avatar"
+      // Помечаем сообщения как прочитанные
+      await Message.updateMany(
+        {
+          chatId,
+          recipientId: userId,
+          isRead: false,
+        },
+        { $set: { isRead: true } }
       );
 
-      res
-        .status(200)
-        .json({ chatInfo, chatMessages, advertisementInfo, sellerInfo });
+      res.status(200).json({ chatInfo, chatMessages, chatId });
     } catch (e) {
-      console.log(e);
+      console.error("Error in getChatToId:", e);
       res.status(500).json({ message: "Ошибка вывода одного чата" });
     }
   }
 
   async readMessage(req, res) {
-    const { chatId, messageIds } = req.body;
     try {
+      const { chatId, messageIds } = req.body;
+      const userId = req.user.id;
+
       await Message.updateMany(
-        { _id: { $in: messageIds }, chatId },
+        { 
+          _id: { $in: messageIds }, 
+          chatId,
+          recipientId: userId,
+          isRead: false
+        },
         { $set: { isRead: true } }
       );
+
+      // Обновляем информацию о чате
+      const lastMessage = await Message.findOne({ chatId })
+        .sort({ createdAt: -1 })
+        .limit(1);
+
+      if (lastMessage) {
+        await Chat.findByIdAndUpdate(chatId, {
+          lastMessage: {
+            content: lastMessage.content,
+            senderId: lastMessage.senderId,
+            isRead: lastMessage.isRead,
+            sentAt: lastMessage.createdAt,
+          },
+        });
+      }
+
+      const io = getIO();
+      io.to(chatId).emit("messagesRead", { chatId, messageIds });
+
       res.status(200).send({ success: true });
     } catch (error) {
+      console.error("Error in readMessage:", error);
       res.status(500).send({ error: "Ошибка при прочтении сообщения" });
     }
   }

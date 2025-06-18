@@ -1,7 +1,7 @@
 <div class="chat">
   <div class="chat__left">
     <div class="search">
-      <input type="text" placeholder="Искать..." />
+      <input type="text" placeholder="Искать..." [(ngModel)]="searchQuery" />
       <div class="close">
         <svg
           width="14"
@@ -18,46 +18,33 @@
       </div>
     </div>
     <div class="chats">
-      <div class="chats__one">
-        <div class="avatar">
-          <img
-            src="http://localhost:5000/uploads/1749631176482.png"
-            alt="avatar"
-          />
-        </div>
-        <div class="chat__file">
-          <div class="chat__top">
-            <p>Сара Коннор</p>
-            <span>04.04.2024</span>
+      <ng-container *ngIf="!loading; else loadingTemplate">
+        <div
+          *ngFor="let chat of chats"
+          class="chats__one"
+          [class.active]="selectedChat?._id === chat._id"
+          (click)="selectChat(chat)"
+        >
+          <div class="avatar">
+            <img [src]="getChatAvatar(chat)" alt="avatar" />
           </div>
-          <div class="chat__bottom">
-            <p>
-              Терминаторы тестирую стенд, Готему нужен герой. За ангуляр только
-              ты шаришь, хелп!
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="chats__one">
-        <div class="avatar">
-          <img
-            src="http://localhost:5000/uploads/1749631176482.png"
-            alt="avatar"
-          />
-        </div>
-        <div class="chat__file">
-          <div class="chat__top">
-            <p>Кристанна Локен</p>
-            <span>04.04.2024</span>
-          </div>
-          <div class="chat__bottom">
-            <p>Она в архиве</p>
+          <div class="chat__file">
+            <div class="chat__top">
+              <p>{{ getChatTitle(chat) }}</p>
+              <span>{{ chat.updatedAt | date : "dd.MM.yyyy" }}</span>
+            </div>
+            <div class="chat__bottom">
+              <p>{{ chat.lastMessage?.content || "Нет сообщений" }}</p>
+            </div>
           </div>
         </div>
-      </div>
+      </ng-container>
+      <ng-template #loadingTemplate>
+        <div class="loading">Загрузка чатов...</div>
+      </ng-template>
     </div>
   </div>
-  <div class="chat__right">
+  <div class="chat__right" *ngIf="selectedChat">
     <div class="chat__right-header">
       <button>
         <svg
@@ -76,12 +63,9 @@
 
       <div class="user__info">
         <div class="avatar">
-          <img
-            src="http://localhost:5000/uploads/1749631176482.png"
-            alt="avatar"
-          />
+          <img [src]="getChatAvatar(selectedChat)" alt="avatar" />
         </div>
-        Кристанна Локен
+        {{ getChatTitle(selectedChat) }}
       </div>
 
       <button>
@@ -104,103 +88,44 @@
         <div class="date">Сегодня</div>
 
         <div class="chats">
-          <div class="chats__left">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text">Она в архиве</div>
+          <div
+            *ngFor="let message of messages"
+            [class.chats__left]="!isMyMessage(message)"
+            [class.chats__right]="isMyMessage(message)"
+          >
+            <div class="avatar" *ngIf="!isMyMessage(message)">
+              <img [src]="getChatAvatar(selectedChat)" alt="avatar" />
             </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
             <div class="user__inform">
               <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
+                {{ isMyMessage(message) ? "Вы" : getChatTitle(selectedChat) }}
+                <span>{{ formatDate(message.createdAt) }}</span>
               </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
+              <div
+                [class.text]="!isMyMessage(message)"
+                [class.text_right]="isMyMessage(message)"
+              >
+                {{ message.content }}
               </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text_right">Она в архиве</div>
-            </div>
-          </div>
-          <div class="chats__left chats__right">
-            <div class="avatar"></div>
-            <div class="user__inform">
-              <div class="user__inform-title">
-                Кристанна Локен <span>8:20 </span>
-              </div>
-              <div class="text_right">Она в архиве</div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="dialog__chat-input">
-        <div class="avatar"></div>
-        <input type="text" name="" id="" placeholder="Напишите что-нибудь" />
-        <button>
+        <div class="avatar">
+          <!-- <img
+            [src]="userService.getProfile(currentUserId)?.avatar"
+            alt="avatar"
+          /> -->
+        </div>
+        <input
+          type="text"
+          placeholder="Напишите что-нибудь"
+          [(ngModel)]="newMessage"
+          (keyup.enter)="sendMessage()"
+        />
+        <button (click)="sendMessage()">
           <svg
             width="15"
             height="12"
@@ -216,5 +141,8 @@
         </button>
       </div>
     </div>
+  </div>
+  <div class="chat__right empty" *ngIf="!selectedChat">
+    <div class="empty-message">Выберите чат для начала общения</div>
   </div>
 </div>

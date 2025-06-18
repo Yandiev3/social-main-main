@@ -4,6 +4,7 @@ import { UserService } from '../../service/user.service';
 import { PostService } from '../../service/post.service';
 import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ChatService } from '../../service/chat.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -25,8 +26,10 @@ export class ProfilePageComponent {
     private router: Router, 
     private userService: UserService,
     private postService: PostService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
     // private cdr: ChangeDetectorRef
+    private chatService: ChatService
+
   ) {}
 
   ngOnInit() {
@@ -178,15 +181,11 @@ async addComment(post: any) {
   }
 }
 
-startNewChat() {
-  this.router.navigate(['/chat', this.user._id]);
-}
-
 async checkSubscriptionStatus() {
   this.isSubscribed = await this.userService.checkSubscription(this.userId);
 }
 
-  async toggleSubscribe(profile: any) {
+async toggleSubscribe(profile: any) {
     const token = localStorage.getItem('token');
     if (!token) {
       this.router.navigate(['/login']);
@@ -205,5 +204,28 @@ async checkSubscriptionStatus() {
     } catch (error) {
       console.error("Ошибка при изменении статуса подписки:", error);
     }
+}
+
+async startNewChat() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    this.router.navigate(['/login']);
+    return;
   }
+
+  try {
+    // Создаем или получаем существующий чат
+    const chat = await this.chatService.createOrGetChat(
+      this.currentUser._id,
+      this.user._id
+    ).toPromise();
+
+    // Перенаправляем в чаты
+    this.router.navigate(['/chats'], {
+      state: { selectedChat: chat }
+    });
+  } catch (error) {
+    console.error('Ошибка при создании чата:', error);
+  }
+}
 }

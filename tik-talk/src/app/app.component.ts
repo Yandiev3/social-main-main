@@ -5,9 +5,12 @@ import { filter } from 'rxjs';
 import { NgIf } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SidebarComponent, RouterModule, NgIf, NgSelectModule],
+  imports: [RouterOutlet, SidebarComponent, RouterModule, NgIf, NgSelectModule, FormsModule, HttpClientModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
