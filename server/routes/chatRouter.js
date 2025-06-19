@@ -9,4 +9,7 @@ router.get('/chats', authMiddleware, chatController.getUserChats);
 router.get('/chats/:chatId', authMiddleware, chatController.getChatToId);
 router.post('/messages/read', authMiddleware, chatController.readMessage);
 
+router.get('/between/:user1Id/:user2Id', authMiddleware, chatController.getChatBetweenUsers);
+
+
 module.exports = router;

@@ -5,6 +5,8 @@ const authRouter = require("./routes/authRouter");
 const postRouter = require("./routes/postRouter");
 const authController = require("./controllers/authController");
 const chatRoute = require("./routes/chatRouter");
+const http = require("http");
+const socket = require("./socket");
 
 const PORT = process.env.PORT || 5000;
 const app = express({ limit: "100mb" });
@@ -18,6 +20,9 @@ app.use('/post', postRouter);
 
 
 app.use("/chat", chatRoute);
+
+const server = http.createServer(app);
+socket.init(server);
 
 const start = async () => {
   try {

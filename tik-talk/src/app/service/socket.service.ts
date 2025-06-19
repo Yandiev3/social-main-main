@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SocketService {
-  private socket: Socket;
+  private socket: any;
 
   constructor() {
     this.socket = io('http://localhost:5000', {
       auth: {
-        token: localStorage.getItem('token')
+        token: localStorage.getItem('token') || ''
       }
     });
   }
@@ -30,31 +30,31 @@ export class SocketService {
 
   onNewMessage(): Observable<any> {
     return new Observable(observer => {
-      this.socket.on('newMessage', (data) => observer.next(data));
+      this.socket.on('newMessage', (data: any) => observer.next(data));
     });
   }
 
   onNewChat(): Observable<any> {
     return new Observable(observer => {
-      this.socket.on('newChat', (data) => observer.next(data));
+      this.socket.on('newChat', (data: any) => observer.next(data));
     });
   }
 
   onChatUpdated(): Observable<any> {
     return new Observable(observer => {
-      this.socket.on('chatUpdated', (data) => observer.next(data));
+      this.socket.on('chatUpdated', (data: any) => observer.next(data));
     });
   }
 
   onMessagesRead(): Observable<any> {
     return new Observable(observer => {
-      this.socket.on('messagesRead', (data) => observer.next(data));
+      this.socket.on('messagesRead', (data: any) => observer.next(data));
     });
   }
 
   onUserStatus(): Observable<any> {
     return new Observable(observer => {
-      this.socket.on('user_status', (data) => observer.next(data));
+      this.socket.on('user_status', (data: any) => observer.next(data));
     });
   }
 

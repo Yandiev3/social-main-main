@@ -214,7 +214,6 @@ async startNewChat() {
   }
 
   try {
-    // Создаем или получаем существующий чат
     const chat = await this.chatService.createOrGetChat(
       this.currentUser._id,
       this.user._id

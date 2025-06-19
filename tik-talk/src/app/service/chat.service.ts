@@ -33,14 +33,12 @@ export class ChatService {
 
   createOrGetChat(userSend: string, userGet: string): Observable<any> {
     return new Observable(observer => {
-      // Сначала проверяем существующий чат
       this.getChatBetweenUsers(userSend, userGet).subscribe({
         next: (existingChat) => {
           if (existingChat) {
             observer.next(existingChat);
             observer.complete();
           } else {
-            // Если чата нет, создаем новый
             this.http.post(`${this.apiUrl}/chats`, { 
               user_send: userSend, 
               user_get: userGet 

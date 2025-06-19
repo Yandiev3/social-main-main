@@ -219,6 +219,44 @@ class chatController {
       res.status(500).send({ error: "Ошибка при прочтении сообщения" });
     }
   }
+
+  async getChatBetweenUsers(req, res){
+    try {
+      const { user1Id, user2Id } = req.params;
+      
+      
+      const chat = await Chat.findOne({
+        $or: [
+          { user_send: user1Id, user_get: user2Id },
+          { user_send: user2Id, user_get: user1Id }
+        ]
+      }).populate('user_send user_get');
+  
+        if (!chat) {
+          let chat2 = new Chat({
+            user_send: user1Id,
+            user_get: user2Id,
+          });
+          await chat2.save();
+          
+          // Полноценно заполняем данные после сохранения
+          chat2 = await Chat.findById(chat2._id)
+            .populate('user_send', 'avatar name lastname')
+            .populate('user_get', 'avatar name lastname');
+  
+          const io = getIO();
+          io.to(user1Id).emit("newChat", chat2);
+          io.to(user2Id).emit("newChat", chat2);
+          
+          return res.json(chat2)
+        }
+  
+      res.json(chat);
+    } catch (error) {
+      console.error('Ошибка при поиске чата:', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  };
 }
 
 module.exports = new chatController();
