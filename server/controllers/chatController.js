@@ -1,5 +1,6 @@
+// chatController.js
 const Chat = require("../models/Chat");
-const Message = require("../models/message");
+const Message = require("../models/Message");
 const User = require("../models/User");
 
 const { getIO } = require("../socket");
@@ -8,103 +9,42 @@ class chatController {
   async createOrGetChat(req, res) {
     try {
       const { user_send, user_get } = req.body;
-      
-      // Проверка на существование пользователей
       const [userSend, userGet] = await Promise.all([
         User.findById(user_send),
-        User.findById(user_get)
+        User.findById(user_get),
       ]);
-      
+
       if (!userSend || !userGet) {
-        return res.status(404).json({ error: "Один из пользователей не найден" });
+        return res.status(404).json({ error: 'Один из пользователей не найден' });
       }
 
-      // Ищем существующий чат в обоих направлениях
       let chat = await Chat.findOne({
         $or: [
           { user_send, user_get },
-          { user_send: user_get, user_get: user_send }
-        ]
+          { user_send: user_get, user_get: user_send },
+        ],
       }).populate('user_send user_get', 'avatar name lastname');
 
       if (!chat) {
-        chat = new Chat({
-          user_send,
-          user_get,
-        });
+        chat = new Chat({ user_send, user_get });
         await chat.save();
-        
-        // Полноценно заполняем данные после сохранения
         chat = await Chat.findById(chat._id)
           .populate('user_send', 'avatar name lastname')
           .populate('user_get', 'avatar name lastname');
 
         const io = getIO();
-        io.to(user_send).emit("newChat", chat);
-        io.to(user_get).emit("newChat", chat);
+        io.to(user_send).emit('newChat', chat);
+        io.to(user_get).emit('newChat', chat);
       }
 
       res.status(200).json(chat);
     } catch (error) {
-      console.error("Error in createOrGetChat:", error);
-      res.status(500).json({ error: "Ошибка при создании чата" });
+      console.error('Error in createOrGetChat:', error);
+      res.status(500).json({ error: 'Ошибка при создании чата' });
     }
   }
 
-  async sendMessage(req, res) {
-    try {
-      const {
-        chatId,
-        senderId,
-        recipientId,
-        content,
-        attachments = [],
-      } = req.body;
-
-      // Проверка существования чата
-      const chat = await Chat.findById(chatId);
-      if (!chat) {
-        return res.status(404).json({ error: "Чат не найден" });
-      }
-
-      const message = new Message({
-        chatId,
-        senderId,
-        recipientId,
-        content,
-        attachments,
-      });
-      await message.save();
-
-      // Обновляем последнее сообщение в чате
-      const updatedChat = await Chat.findByIdAndUpdate(
-        chatId,
-        {
-          updatedAt: new Date(),
-          lastMessage: {
-            content,
-            senderId,
-            isRead: false,
-            sentAt: new Date(),
-          },
-        },
-        { new: true }
-      )
-        .populate('lastMessage.senderId', 'avatar name lastname')
-        .populate('user_send', 'avatar name lastname')
-        .populate('user_get', 'avatar name lastname');
-
-      const io = getIO();
-      io.to(chatId).emit("newMessage", message);
-      io.to(senderId).emit("chatUpdated", updatedChat);
-      io.to(recipientId).emit("chatUpdated", updatedChat);
-
-      res.status(201).json(message);
-    } catch (error) {
-      console.error("Error in sendMessage:", error);
-      res.status(500).json({ error: "Ошибка при отправке сообщения" });
-    }
-  }
+  // Метод sendMessage удален, так как теперь сообщения отправляются через WebSocket
 
   async getUserChats(req, res) {
     try {
@@ -118,7 +58,6 @@ class chatController {
         .populate("user_get", "avatar name lastname")
         .populate("lastMessage.senderId", "avatar name lastname");
 
-      // Добавляем информацию о непрочитанных сообщениях
       const chatsWithUnread = await Promise.all(
         chats.map(async (chat) => {
           const unreadCount = await Message.countDocuments({
@@ -162,7 +101,6 @@ class chatController {
 
       const chatMessages = await Message.find({ chatId }).sort({ createdAt: 1 });
 
-      // Помечаем сообщения как прочитанные
       await Message.updateMany(
         {
           chatId,
@@ -171,6 +109,9 @@ class chatController {
         },
         { $set: { isRead: true } }
       );
+
+      const io = getIO();
+      io.to(chatId).emit("messagesRead", { chatId, messageIds: chatMessages.filter(m => m.recipientId === userId).map(m => m._id) });
 
       res.status(200).json({ chatInfo, chatMessages, chatId });
     } catch (e) {
@@ -185,16 +126,15 @@ class chatController {
       const userId = req.user.id;
 
       await Message.updateMany(
-        { 
-          _id: { $in: messageIds }, 
+        {
+          _id: { $in: messageIds },
           chatId,
           recipientId: userId,
-          isRead: false
+          isRead: false,
         },
         { $set: { isRead: true } }
       );
 
-      // Обновляем информацию о чате
       const lastMessage = await Message.findOne({ chatId })
         .sort({ createdAt: -1 })
         .limit(1);
@@ -220,43 +160,41 @@ class chatController {
     }
   }
 
-  async getChatBetweenUsers(req, res){
+  async getChatBetweenUsers(req, res) {
     try {
       const { user1Id, user2Id } = req.params;
-      
-      
+
       const chat = await Chat.findOne({
         $or: [
           { user_send: user1Id, user_get: user2Id },
-          { user_send: user2Id, user_get: user1Id }
-        ]
+          { user_send: user2Id, user_get: user1Id },
+        ],
       }).populate('user_send user_get');
-  
-        if (!chat) {
-          let chat2 = new Chat({
-            user_send: user1Id,
-            user_get: user2Id,
-          });
-          await chat2.save();
-          
-          // Полноценно заполняем данные после сохранения
-          chat2 = await Chat.findById(chat2._id)
-            .populate('user_send', 'avatar name lastname')
-            .populate('user_get', 'avatar name lastname');
-  
-          const io = getIO();
-          io.to(user1Id).emit("newChat", chat2);
-          io.to(user2Id).emit("newChat", chat2);
-          
-          return res.json(chat2)
-        }
-  
+
+      if (!chat) {
+        let chat2 = new Chat({
+          user_send: user1Id,
+          user_get: user2Id,
+        });
+        await chat2.save();
+
+        chat2 = await Chat.findById(chat2._id)
+          .populate('user_send', 'avatar name lastname')
+          .populate('user_get', 'avatar name lastname');
+
+        const io = getIO();
+        io.to(user1Id).emit("newChat", chat2);
+        io.to(user2Id).emit("newChat", chat2);
+
+        return res.json(chat2);
+      }
+
       res.json(chat);
     } catch (error) {
       console.error('Ошибка при поиске чата:', error);
       res.status(500).json({ message: 'Ошибка сервера' });
     }
-  };
+  }
 }
 
 module.exports = new chatController();

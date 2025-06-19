@@ -1,19 +1,20 @@
+<!-- chats.component.html -->
 <div class="chat">
   <div class="chat__left">
     <div class="search">
-      <input type="text" placeholder="Искать..." [(ngModel)]="searchQuery" />
-      <div class="close">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 14 14"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M2.74609 7.52734C3.40234 8.18359 4.19922 8.51172 5.13672 8.51172C6.07422 8.51172 6.87109 8.18359 7.52734 7.52734C8.18359 6.87109 8.51172 6.07422 8.51172 5.13672C8.51172 4.19922 8.18359 3.40234 7.52734 2.74609C6.87109 2.08984 6.07422 1.76172 5.13672 1.76172C4.19922 1.76172 3.40234 2.08984 2.74609 2.74609C2.08984 3.40234 1.76172 4.19922 1.76172 5.13672C1.76172 6.07422 2.08984 6.87109 2.74609 7.52734ZM9.63672 8.51172L13.3633 12.2383L12.2383 13.3633L8.51172 9.63672V9.03906L8.30078 8.82812C7.41016 9.60156 6.35547 9.98828 5.13672 9.98828C3.77734 9.98828 2.61719 9.51953 1.65625 8.58203C0.71875 7.64453 0.25 6.49609 0.25 5.13672C0.25 3.77734 0.71875 2.62891 1.65625 1.69141C2.61719 0.730469 3.77734 0.25 5.13672 0.25C6.49609 0.25 7.64453 0.730469 8.58203 1.69141C9.51953 2.62891 9.98828 3.77734 9.98828 5.13672C9.98828 5.62891 9.87109 6.19141 9.63672 6.82422C9.40234 7.43359 9.13281 7.92578 8.82812 8.30078L9.03906 8.51172H9.63672Z"
-            fill="white"
-          />
+      <input
+        type="text"
+        placeholder="Искать..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="searchChats()"
+      />
+      <div
+        class="close"
+        *ngIf="searchQuery"
+        (click)="searchQuery = ''; searchChats()"
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12">
+          <path d="M1 1L11 11M1 11L11 1" stroke="#999" stroke-width="2" />
         </svg>
       </div>
     </div>
@@ -27,6 +28,16 @@
         >
           <div class="avatar">
             <img [src]="getChatAvatar(chat)" alt="avatar" />
+            <span
+              class="status"
+              [class.online]="
+                getUserStatus(
+                  chat.user_send._id === currentUserId
+                    ? chat.user_get._id
+                    : chat.user_send._id
+                ).isOnline
+              "
+            ></span>
           </div>
           <div class="chat__file">
             <div class="chat__top">
@@ -35,6 +46,9 @@
             </div>
             <div class="chat__bottom">
               <p>{{ chat.lastMessage?.content || "Нет сообщений" }}</p>
+              <span *ngIf="chat.unreadCount" class="unread-count">
+                {{ chat.unreadCount }}
+              </span>
             </div>
           </div>
         </div>
@@ -46,36 +60,40 @@
   </div>
   <div class="chat__right" *ngIf="selectedChat">
     <div class="chat__right-header">
-      <button>
-        <svg
-          width="6"
-          height="8"
-          viewBox="0 0 6 8"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+      <button (click)="selectedChat = null">
+        <svg width="6" height="8" viewBox="0 0 6 8">
           <path
             d="M5.28125 0.9375L2.21875 4L5.28125 7.0625L4.34375 8L0.34375 4L4.34375 0L5.28125 0.9375Z"
             fill="white"
           />
         </svg>
       </button>
-
       <div class="user__info">
         <div class="avatar">
           <img [src]="getChatAvatar(selectedChat)" alt="avatar" />
         </div>
-        {{ getChatTitle(selectedChat) }}
-      </div>
-
-      <button>
-        <svg
-          width="4"
-          height="12"
-          viewBox="0 0 4 12"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+        <span>{{ getChatTitle(selectedChat) }}</span>
+        <span
+          class="status-text"
+          *ngIf="
+            !getUserStatus(
+              selectedChat.user_send._id === currentUserId
+                ? selectedChat.user_get._id
+                : selectedChat.user_send._id
+            ).isOnline
+          "
         >
+          {{
+            getUserStatus(
+              selectedChat.user_send._id === currentUserId
+                ? selectedChat.user_get._id
+                : selectedChat.user_send._id
+            ).lastSeen | date : "dd.MM.yyyy HH:mm"
+          }}
+        </span>
+      </div>
+      <button class="options">
+        <svg width="4" height="12" viewBox="0 0 4 12">
           <path
             d="M1.0625 9.0625C1.33333 8.79167 1.64583 8.65625 2 8.65625C2.35417 8.65625 2.66667 8.79167 2.9375 9.0625C3.20833 9.33333 3.34375 9.64583 3.34375 10C3.34375 10.3542 3.20833 10.6667 2.9375 10.9375C2.66667 11.2083 2.35417 11.3438 2 11.3438C1.64583 11.3438 1.33333 11.2083 1.0625 10.9375C0.791667 10.6667 0.65625 10.3542 0.65625 10C0.65625 9.64583 0.791667 9.33333 1.0625 9.0625ZM1.0625 5.0625C1.33333 4.79167 1.64583 4.65625 2 4.65625C2.35417 4.65625 2.66667 4.79167 2.9375 5.0625C3.20833 5.33333 3.34375 5.64583 3.34375 6C3.34375 6.35417 3.20833 6.66667 2.9375 6.9375C2.66667 7.20833 2.35417 7.34375 2 7.34375C1.64583 7.34375 1.33333 7.20833 1.0625 6.9375C0.791667 6.66667 0.65625 6.35417 0.65625 6C0.65625 5.64583 0.791667 5.33333 1.0625 5.0625ZM2.9375 2.9375C2.66667 3.20833 2.35417 3.34375 2 3.34375C1.64583 3.34375 1.33333 3.20833 1.0625 2.9375C0.791667 2.66667 0.65625 2.35417 0.65625 2C0.65625 1.64583 0.791667 1.33333 1.0625 1.0625C1.33333 0.791667 1.64583 0.65625 2 0.65625C2.35417 0.65625 2.66667 0.791667 2.9375 1.0625C3.20833 1.33333 3.34375 1.64583 3.34375 2C3.34375 2.35417 3.20833 2.66667 2.9375 2.9375Z"
             fill="white"
@@ -83,10 +101,9 @@
         </svg>
       </button>
     </div>
-    <div class="dialog__chat">
+    <div class="dialog__chat" #chatContainer>
       <div class="dialog__chat-one">
         <div class="date">Сегодня</div>
-
         <div class="chats">
           <div
             *ngFor="let message of messages"
@@ -100,6 +117,9 @@
               <div class="user__inform-title">
                 {{ isMyMessage(message) ? "Вы" : getChatTitle(selectedChat) }}
                 <span>{{ formatDate(message.createdAt) }}</span>
+                <span class="read-status" *ngIf="isMyMessage(message)">
+                  {{ message.isRead ? "✓✓" : "✓" }}
+                </span>
               </div>
               <div
                 [class.text]="!isMyMessage(message)"
@@ -111,31 +131,18 @@
           </div>
         </div>
       </div>
-
       <div class="dialog__chat-input">
-        <div class="avatar">
-          <!-- <img
-            [src]="userService.getProfile(currentUserId)?.avatar"
-            alt="avatar"
-          /> -->
-        </div>
         <input
           type="text"
-          placeholder="Напишите что-нибудь"
+          placeholder="Type a message..."
           [(ngModel)]="newMessage"
           (keyup.enter)="sendMessage()"
         />
-        <button (click)="sendMessage()">
-          <svg
-            width="15"
-            height="12"
-            viewBox="0 0 15 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+        <button (click)="sendMessage()" [disabled]="!newMessage.trim()">
+          <svg width="15" height="12" viewBox="0 0 15 12">
             <path
-              d="M0.34375 12V7.34375L10.3438 6L0.34375 4.65625V0L14.3438 6L0.34375 12Z"
-              fill="black"
+              d="M0.34375 12V7.25L10.25 6L0.34375 4.75V0L14.25 6L0.34375 12Z"
+              fill="#4a90e2"
             />
           </svg>
         </button>

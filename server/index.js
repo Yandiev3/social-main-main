@@ -1,9 +1,9 @@
+// index.js
 const express = require("express");
 const cors = require('cors');
 const { default: mongoose } = require("mongoose");
 const authRouter = require("./routes/authRouter");
 const postRouter = require("./routes/postRouter");
-const authController = require("./controllers/authController");
 const chatRoute = require("./routes/chatRouter");
 const http = require("http");
 const socket = require("./socket");
@@ -16,9 +16,6 @@ app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/uploads', express.static('uploads'));
 app.use('/post', postRouter);
-
-
-
 app.use("/chat", chatRoute);
 
 const server = http.createServer(app);
@@ -27,7 +24,7 @@ socket.init(server);
 const start = async () => {
   try {
     await mongoose.connect('mongodb://localhost:27017/');
-    app.listen(PORT, () => {
+    server.listen(PORT, () => { // Изменено на server.listen
       console.clear();
       console.log(`Сервер запущен на порту ${PORT}`);
     });
