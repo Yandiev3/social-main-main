@@ -1,320 +1,192 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { NgClass, NgFor, NgIf } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../service/chat.service';
 import { UserService } from '../../service/user.service';
-import { SocketService } from '../../service/socket.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { Message, Chat, UserStatus } from '../../models/chat.interfaces';
+import { ActivatedRoute } from '@angular/router';
+
+interface Message {
+  id: string;
+  sender: { _id: string; name: string; username: string };
+  recipient: { _id: string; name: string; username: string };
+  content: string;
+  timestamp: string;
+}
+
+interface Chat {
+  id: string;
+  userId: string;
+  lastMessage: string;
+  timestamp: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+interface Profile {
+  _id: string;
+  name: string;
+  username: string;
+  avatar: string;
+  about: string;
+  stack: string[];
+  subscribers: string[];
+}
 
 @Component({
   selector: 'app-chats',
-  templateUrl: './chats.component.html',
-  styleUrls: ['./chats.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [FormsModule, NgIf, NgClass, NgFor],
+  templateUrl: './chats.component.html',
+  styleUrls: ['./chats.component.scss']
 })
-export class ChatsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ChatsComponent implements OnInit, OnDestroy {
+  currentUser: User = { id: '', name: '', avatar: '' };
+  users: User[] = [];
   chats: Chat[] = [];
-  selectedChat: Chat | null = null;
   messages: Message[] = [];
-  newMessage = '';
-  searchQuery = '';
-  currentUserId: string = '';
-  loading = true;
-  errorMessage: string | null = null;
-  userStatuses: { [key: string]: { isOnline: boolean; lastSeen: Date | null } } = {};
-  private subscriptions: Subscription = new Subscription();
-  
-  @ViewChild('chatContainer') chatContainer!: ElementRef;
+  selectedChat: Chat | null = null;
+  searchQuery: string = '';
+  newMessage: string = '';
 
   constructor(
     private chatService: ChatService,
     private userService: UserService,
-    private socketService: SocketService,
-    private router: Router
+    private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
-    // Получаем ID текущего пользователя из localStorage
-    this.currentUserId = localStorage.getItem('userId') || '';
-    if (!this.currentUserId) {
-      this.errorMessage = 'Необходимо авторизоваться';
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    // Загружаем чаты и настраиваем сокет-соединение
-    this.loadChats();
-    this.setupSocketListeners();
-    this.socketService.connect(this.currentUserId);
-
-    // Подписываемся на ошибки авторизации от SocketService
-    this.subscriptions.add(
-      this.socketService.onAuthError().subscribe((error) => {
-        this.errorMessage = error;
-        if (error.includes('redirect to login')) {
-          this.router.navigate(['/login']);
+  async ngOnInit(): Promise<void> {
+    try {
+      // Получаем текущего пользователя
+      this.currentUser = await this.getCurrentUser();
+      // Подключаемся к WebSocket
+      this.chatService.connect();
+      // Получаем список пользователей и преобразуем Profile[] в User[]
+      const profiles = await this.userService.getProfiles();
+      this.users = profiles.map((profile: Profile) => ({
+        id: profile._id,
+        name: profile.name,
+        avatar: profile.avatar
+      }));
+      // Подписываемся на новые сообщения
+      this.chatService.getMessages().subscribe((message) => {
+        if (
+          (message.sender._id === this.selectedChat?.userId && message.recipient._id === this.currentUser.id) ||
+          (message.sender._id === this.currentUser.id && message.recipient._id === this.selectedChat?.userId)
+        ) {
+          this.messages.push(message);
         }
-      })
-    );
-  }
+        this.updateChatList(message);
+      });
+      // Загружаем чаты
+      await this.loadChats();
 
-  ngAfterViewInit(): void {
-    // Прокручиваем чат вниз после загрузки сообщений
-    this.scrollToBottom();
+      // Проверяем параметр userId из маршрута
+      this.route.queryParams.subscribe((params) => {
+        const userId = params['userId'];
+        if (userId) {
+          const chat = this.chats.find((c) => c.userId === userId);
+          if (chat) {
+            this.selectChat(chat);
+          } else {
+            const user = this.users.find((u) => u.id === userId);
+            if (user) {
+              const newChat: Chat = {
+                id: userId,
+                userId,
+                lastMessage: '',
+                timestamp: new Date().toLocaleDateString('ru-RU')
+              };
+              this.chats.push(newChat);
+              this.selectChat(newChat);
+            }
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Ошибка инициализации:', error);
+    }
   }
 
   ngOnDestroy(): void {
-    // Отключаемся от текущего чата и сокета при уничтожении компонента
-    if (this.selectedChat) {
-      this.socketService.leaveChat(this.selectedChat._id);
+    this.chatService.disconnect();
+  }
+
+  async getCurrentUser(): Promise<User> {
+    const profile = await this.userService.getProfile().toPromise();
+    if (!profile) {
+      throw new Error('Не удалось получить профиль пользователя');
     }
-    this.socketService.disconnect();
-    this.subscriptions.unsubscribe();
+    return {
+      id: profile._id,
+      name: profile.name,
+      avatar: profile.avatar
+    };
   }
 
-  // Настройка слушателей событий WebSocket
-  private setupSocketListeners(): void {
-    // Обработка нового сообщения
-    this.subscriptions.add(
-      this.socketService.onNewMessage().subscribe((message: Message) => {
-        if (this.selectedChat && message.chatId === this.selectedChat._id) {
-          this.messages = [...this.messages, message];
-          this.scrollToBottom();
-          if (message.recipientId === this.currentUserId && !message.isRead) {
-            this.markMessagesRead([message._id]);
-          }
+  async loadChats(): Promise<void> {
+    for (const user of this.users) {
+      if (user.id !== this.currentUser.id) {
+        const history = await this.chatService.getChatHistory(user.id).toPromise();
+        if (history && history.length > 1) {
+          const lastMessage = history[history.length - 1];
+          this.chats.push({
+            id: user.id,
+            userId: user.id,
+            lastMessage: lastMessage.content,
+            timestamp: new Date(lastMessage.timestamp).toLocaleDateString('ru-RU')
+          });
         }
-        this.updateChatList(message);
-      })
-    );
-
-    // Обработка обновления чата
-    this.subscriptions.add(
-      this.socketService.onChatUpdated().subscribe((updatedChat: Chat) => {
-        this.chats = this.chats
-          .map(chat => chat._id === updatedChat._id ? updatedChat : chat)
-          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-      })
-    );
-
-    // Обработка создания нового чата
-    this.subscriptions.add(
-      this.socketService.onNewChat().subscribe((newChat: Chat) => {
-        this.chats = [newChat, ...this.chats].sort((a, b) => 
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-      })
-    );
-
-    // Обработка прочтения сообщений
-    this.subscriptions.add(
-      this.socketService.onMessagesRead().subscribe(({ chatId, messageIds }) => {
-        if (this.selectedChat && this.selectedChat._id === chatId) {
-          this.messages = this.messages.map(msg =>
-            messageIds.includes(msg._id) ? { ...msg, isRead: true } : msg
-          );
-        }
-      })
-    );
-
-    // Обработка статуса пользователя
-    this.subscriptions.add(
-      this.socketService.onUserStatus().subscribe((status: UserStatus) => {
-        this.userStatuses[status.userId] = {
-          isOnline: status.isOnline,
-          lastSeen: status.lastSeen ? new Date(status.lastSeen) : null
-        };
-      })
-    );
-  }
-
-  // Загрузка списка чатов
-  loadChats(): void {
-    this.loading = true;
-    this.errorMessage = null;
-    this.chatService.getChats().subscribe({
-      next: (chats: Chat[]) => {
-        this.chats = chats.sort((a, b) => 
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        );
-        this.loading = false;
-        // Проверяем статус каждого пользователя в чатах
-        this.chats.forEach(chat => {
-          const otherUserId = chat.user_send._id === this.currentUserId 
-            ? chat.user_get._id 
-            : chat.user_send._id;
-          this.socketService.checkUserStatus(otherUserId);
-        });
-      },
-      error: (err) => {
-        console.error('Ошибка загрузки чатов:', err);
-        this.errorMessage = 'Не удалось загрузить чаты. Попробуйте позже.';
-        this.loading = false;
       }
-    });
+    }
   }
 
-  // Выбор чата
   selectChat(chat: Chat): void {
-    if (this.selectedChat) {
-      this.socketService.leaveChat(this.selectedChat._id);
-    }
     this.selectedChat = chat;
-    this.messages = [];
-    this.socketService.joinChat(chat._id);
-    this.loadMessages();
+    this.loadMessages(chat.userId);
   }
 
-  // Загрузка сообщений для выбранного чата
-  private loadMessages(): void {
-    if (!this.selectedChat) return;
-    
-    this.chatService.getChatById(this.selectedChat._id).subscribe({
-      next: (data: { chatInfo: Chat; chatMessages: Message[] }) => {
-        this.messages = data.chatMessages;
-        this.scrollToBottom();
-        const unreadIds = this.messages
-          .filter(m => !m.isRead && m.recipientId === this.currentUserId)
-          .map(m => m._id);
+async loadMessages(recipientId: string): Promise<void> {
+  const messages = await this.chatService.getChatHistory(recipientId).toPromise();
+  this.messages = messages || [];
+}
 
-        if (unreadIds.length > 0) {
-          this.markMessagesRead(unreadIds);
-        }
-      },
-      error: (err) => {
-        console.error('Ошибка загрузки сообщений:', err);
-        this.errorMessage = 'Не удалось загрузить сообщения. Попробуйте позже.';
-      }
-    });
-  }
-
-  // Пометка сообщений как прочитанных
-  private markMessagesRead(messageIds: string[]): void {
-    if (!this.selectedChat) return;
-    
-    this.chatService.markMessagesAsRead(this.selectedChat._id, messageIds).subscribe({
-      next: () => {
-        this.chats = this.chats.map(chat => {
-          if (chat._id === this.selectedChat?._id) {
-            return { ...chat, unreadCount: 0 };
-          }
-          return chat;
-        });
-        this.socketService.emitMessagesRead(this.selectedChat!._id, messageIds);
-      },
-      error: (err) => console.error('Ошибка при пометке сообщений как прочитанных:', err)
-    });
-  }
-
-  // Отправка нового сообщения
   sendMessage(): void {
-    if (!this.newMessage.trim() || !this.selectedChat) return;
+    if (this.newMessage.trim() && this.selectedChat) {
+      this.chatService.sendMessage(this.selectedChat.userId, this.newMessage);
+      this.newMessage = '';
+    }
+  }
 
-    const recipientId = this.selectedChat.user_send._id === this.currentUserId
-      ? this.selectedChat.user_get._id
-      : this.selectedChat.user_send._id;
+  updateChatList(message: Message): void {
+    const userId = message.sender._id === this.currentUser.id ? message.recipient._id : message.sender._id;
+    const existingChat = this.chats.find((chat) => chat.userId === userId);
+    if (existingChat) {
+      existingChat.lastMessage = message.content;
+      existingChat.timestamp = new Date(message.timestamp).toLocaleDateString('ru-RU');
+    } else {
+      this.chats.push({
+        id: userId,
+        userId,
+        lastMessage: message.content,
+        timestamp: new Date(message.timestamp).toLocaleDateString('ru-RU')
+      });
+    }
+    this.chats = [...this.chats];
+  }
 
-    this.chatService.sendMessage(
-      this.selectedChat._id,
-      this.currentUserId,
-      recipientId,
-      this.newMessage
-    ).subscribe({
-      next: (message: Message) => {
-        this.messages = [...this.messages, message];
-        this.scrollToBottom();
-        this.socketService.sendMessage(
-          this.selectedChat!._id,
-          this.currentUserId,
-          recipientId,
-          this.newMessage
-        );
-        this.newMessage = '';
-      },
-      error: (err) => {
-        console.error('Ошибка отправки сообщения:', err);
-        this.errorMessage = 'Не удалось отправить сообщение. Попробуйте позже.';
-      }
+  get filteredChats(): Chat[] {
+    if (!this.searchQuery) return this.chats;
+    return this.chats.filter((chat) => {
+      const user = this.users.find((u) => u.id === chat.userId);
+      return user?.name.toLowerCase().includes(this.searchQuery.toLowerCase());
     });
   }
 
-  // Обновление списка чатов при получении нового сообщения
-  private updateChatList(message: Message): void {
-    const chat = this.chats.find(c => c._id === message.chatId);
-    if (chat) {
-      chat.lastMessage = {
-        content: message.content,
-        senderId: message.senderId,
-        isRead: message.isRead,
-        sentAt: message.createdAt
-      };
-      chat.updatedAt = message.createdAt;
-      if (!message.isRead && message.recipientId === this.currentUserId) {
-        chat.unreadCount = (chat.unreadCount || 0) + 1;
-      }
-      this.chats = [...this.chats].sort((a, b) => 
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
-    }
-  }
-
-  // Получение заголовка чата (имя и фамилия собеседника)
-  getChatTitle(chat: Chat): string {
-    const user = chat.user_send._id === this.currentUserId ? chat.user_get : chat.user_send;
-    return `${user.name} ${user.lastname}`;
-  }
-
-  // Получение аватара чата
-  getChatAvatar(chat: Chat): string {
-    const user = chat.user_send._id === this.currentUserId ? chat.user_get : chat.user_send;
-    return user.avatar || 'assets/default-avatar.png';
-  }
-
-  // Форматирование даты сообщения
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const today = new Date();
-    if (date.toDateString() === today.toDateString()) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    return date.toLocaleString([], { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  }
-
-  // Проверка, является ли сообщение отправленным текущим пользователем
-  isMyMessage(message: Message): boolean {
-    return message.senderId === this.currentUserId;
-  }
-
-  // Получение статуса пользователя
-  getUserStatus(userId: string): { isOnline: boolean; lastSeen: Date | null } {
-    return this.userStatuses[userId] || { isOnline: false, lastSeen: null };
-  }
-
-  // Поиск чатов по запросу
-  searchChats(): void {
-    if (!this.searchQuery.trim()) {
-      this.loadChats();
-      return;
-    }
-    this.chats = this.chats.filter(chat => 
-      this.getChatTitle(chat).toLowerCase().includes(this.searchQuery.toLowerCase())
-    );
-  }
-
-  // Прокрутка чата вниз
-  private scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.chatContainer) {
-        this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-      }
-    }, 0);
+  getUserById(userId: string): User | undefined {
+    return this.users.find((user) => user.id === userId);
   }
 }

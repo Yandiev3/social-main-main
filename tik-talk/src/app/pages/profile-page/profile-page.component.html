@@ -74,7 +74,7 @@
       class="button-wrapper send"
       *ngIf="user && currentUser._id !== user._id"
     >
-      <button class="btn_send" (click)="startNewChat()">
+      <button class="btn_send" (click)="openChat(user)">
         <svg
           width="24"
           height="24"

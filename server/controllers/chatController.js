@@ -1,200 +1,86 @@
-// chatController.js
-const Chat = require("../models/Chat");
-const Message = require("../models/Message");
-const User = require("../models/User");
+const WebSocket = require('ws');
+const jwt = require('jsonwebtoken');
+const Message = require('../models/Message');
+const { secret } = require('../config');
 
-const { getIO } = require("../socket");
+class ChatController {
+  constructor(server) {
+    this.wss = new WebSocket.Server({ server });
+    this.clients = new Map(); // Store WebSocket clients with user IDs
 
-class chatController {
-  async createOrGetChat(req, res) {
-    try {
-      const { user_send, user_get } = req.body;
-      const [userSend, userGet] = await Promise.all([
-        User.findById(user_send),
-        User.findById(user_get),
-      ]);
-
-      if (!userSend || !userGet) {
-        return res.status(404).json({ error: 'Один из пользователей не найден' });
+    this.wss.on('connection', (ws, req) => {
+      // Extract token from query parameter or headers
+      const token = req.url.split('token=')[1] || req.headers['authorization']?.split(' ')[1];
+      if (!token) {
+        ws.close(1008, 'No token provided');
+        return;
       }
 
-      let chat = await Chat.findOne({
-        $or: [
-          { user_send, user_get },
-          { user_send: user_get, user_get: user_send },
-        ],
-      }).populate('user_send user_get', 'avatar name lastname');
+      try {
+        const decoded = jwt.verify(token, secret);
+        const userId = decoded.id;
 
-      if (!chat) {
-        chat = new Chat({ user_send, user_get });
-        await chat.save();
-        chat = await Chat.findById(chat._id)
-          .populate('user_send', 'avatar name lastname')
-          .populate('user_get', 'avatar name lastname');
+        // Store the client with user ID
+        this.clients.set(userId, ws);
+        ws.userId = userId;
 
-        const io = getIO();
-        io.to(user_send).emit('newChat', chat);
-        io.to(user_get).emit('newChat', chat);
-      }
+        ws.on('message', async (message) => {
+          try {
+            const { recipientId, content } = JSON.parse(message);
+            if (!recipientId || !content) {
+              ws.send(JSON.stringify({ error: 'Missing recipientId or content' }));
+              return;
+            }
 
-      res.status(200).json(chat);
-    } catch (error) {
-      console.error('Error in createOrGetChat:', error);
-      res.status(500).json({ error: 'Ошибка при создании чата' });
-    }
-  }
+            const newMessage = new Message({
+              sender: userId,
+              recipient: recipientId,
+              content,
+            });
+            await newMessage.save();
 
-  // Метод sendMessage удален, так как теперь сообщения отправляются через WebSocket
+            // Populate sender and recipient for response
+            const populatedMessage = await Message.findById(newMessage._id)
+              .populate('sender', 'username name')
+              .populate('recipient', 'username name');
 
-  async getUserChats(req, res) {
-    try {
-      const userId = req.user.id;
+            // Send message to sender and recipient
+            const messageData = {
+              id: populatedMessage._id,
+              sender: populatedMessage.sender,
+              recipient: populatedMessage.recipient,
+              content: populatedMessage.content,
+              timestamp: populatedMessage.timestamp,
+            };
 
-      const chats = await Chat.find({
-        $or: [{ user_send: userId }, { user_get: userId }],
-      })
-        .sort({ updatedAt: -1 })
-        .populate("user_send", "avatar name lastname")
-        .populate("user_get", "avatar name lastname")
-        .populate("lastMessage.senderId", "avatar name lastname");
+            // Send to sender
+            if (this.clients.has(userId)) {
+              this.clients.get(userId).send(JSON.stringify(messageData));
+            }
 
-      const chatsWithUnread = await Promise.all(
-        chats.map(async (chat) => {
-          const unreadCount = await Message.countDocuments({
-            chatId: chat._id,
-            recipientId: userId,
-            isRead: false,
-          });
-          return {
-            ...chat.toObject(),
-            unreadCount,
-          };
-        })
-      );
-
-      res.status(200).json(chatsWithUnread);
-    } catch (error) {
-      console.error("Error in getUserChats:", error);
-      res.status(500).json({ error: "Ошибка при получении чатов" });
-    }
-  }
-
-  async getChatToId(req, res) {
-    try {
-      const chatId = req.params.chatId;
-      const userId = req.user.id;
-
-      if (chatId.length !== 24) {
-        return res.status(404).json({ message: "Чата с таким ID не существует!" });
-      }
-
-      const chatInfo = await Chat.findOne({
-        _id: chatId,
-        $or: [{ user_send: userId }, { user_get: userId }],
-      })
-        .populate('user_send', 'avatar name lastname')
-        .populate('user_get', 'avatar name lastname');
-
-      if (!chatInfo) {
-        return res.status(404).json({ message: "Чата с таким ID не существует или у вас нет доступа!" });
-      }
-
-      const chatMessages = await Message.find({ chatId }).sort({ createdAt: 1 });
-
-      await Message.updateMany(
-        {
-          chatId,
-          recipientId: userId,
-          isRead: false,
-        },
-        { $set: { isRead: true } }
-      );
-
-      const io = getIO();
-      io.to(chatId).emit("messagesRead", { chatId, messageIds: chatMessages.filter(m => m.recipientId === userId).map(m => m._id) });
-
-      res.status(200).json({ chatInfo, chatMessages, chatId });
-    } catch (e) {
-      console.error("Error in getChatToId:", e);
-      res.status(500).json({ message: "Ошибка вывода одного чата" });
-    }
-  }
-
-  async readMessage(req, res) {
-    try {
-      const { chatId, messageIds } = req.body;
-      const userId = req.user.id;
-
-      await Message.updateMany(
-        {
-          _id: { $in: messageIds },
-          chatId,
-          recipientId: userId,
-          isRead: false,
-        },
-        { $set: { isRead: true } }
-      );
-
-      const lastMessage = await Message.findOne({ chatId })
-        .sort({ createdAt: -1 })
-        .limit(1);
-
-      if (lastMessage) {
-        await Chat.findByIdAndUpdate(chatId, {
-          lastMessage: {
-            content: lastMessage.content,
-            senderId: lastMessage.senderId,
-            isRead: lastMessage.isRead,
-            sentAt: lastMessage.createdAt,
-          },
+            // Send to recipient if they are connected
+            if (this.clients.has(recipientId)) {
+              this.clients.get(recipientId).send(JSON.stringify(messageData));
+            }
+          } catch (e) {
+            console.error('Error processing message:', e);
+            ws.send(JSON.stringify({ error: 'Error processing message' }));
+          }
         });
-      }
 
-      const io = getIO();
-      io.to(chatId).emit("messagesRead", { chatId, messageIds });
-
-      res.status(200).send({ success: true });
-    } catch (error) {
-      console.error("Error in readMessage:", error);
-      res.status(500).send({ error: "Ошибка при прочтении сообщения" });
-    }
-  }
-
-  async getChatBetweenUsers(req, res) {
-    try {
-      const { user1Id, user2Id } = req.params;
-
-      const chat = await Chat.findOne({
-        $or: [
-          { user_send: user1Id, user_get: user2Id },
-          { user_send: user2Id, user_get: user1Id },
-        ],
-      }).populate('user_send user_get');
-
-      if (!chat) {
-        let chat2 = new Chat({
-          user_send: user1Id,
-          user_get: user2Id,
+        ws.on('close', () => {
+          this.clients.delete(userId);
         });
-        await chat2.save();
 
-        chat2 = await Chat.findById(chat2._id)
-          .populate('user_send', 'avatar name lastname')
-          .populate('user_get', 'avatar name lastname');
-
-        const io = getIO();
-        io.to(user1Id).emit("newChat", chat2);
-        io.to(user2Id).emit("newChat", chat2);
-
-        return res.json(chat2);
+        ws.on('error', (error) => {
+          console.error('WebSocket error:', error);
+          this.clients.delete(userId);
+        });
+      } catch (e) {
+        ws.close(1008, 'Invalid token');
       }
-
-      res.json(chat);
-    } catch (error) {
-      console.error('Ошибка при поиске чата:', error);
-      res.status(500).json({ message: 'Ошибка сервера' });
-    }
+    });
   }
 }
 
-module.exports = new chatController();
+module.exports = ChatController;

@@ -1,75 +1,80 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+
+interface Message {
+  id: string;
+  sender: { _id: string; name: string; username: string };
+  recipient: { _id: string; name: string; username: string };
+  content: string;
+  timestamp: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private apiUrl = 'http://localhost:5000/chat';
+  private ws: WebSocket | null = null;
+  private messagesSubject = new Subject<Message>();
+  private apiUrl = 'http://localhost:5000';
+  private token = localStorage.getItem('token');
 
   constructor(private http: HttpClient) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`, 
+  connect(): void {
+    if (!this.token) {
+      console.error('Токен отсутствует');
+      return;
+    }
+
+    this.ws = new WebSocket(`ws://localhost:5000?token=${this.token}`);
+
+    this.ws.onopen = () => {
+      console.log('WebSocket соединение установлено');
+    };
+
+    this.ws.onmessage = (event) => {
+      try {
+        const message: Message = JSON.parse(event.data);
+        this.messagesSubject.next(message);
+      } catch (error) {
+        console.error('Ошибка парсинга сообщения WebSocket:', error);
+      }
+    };
+
+    this.ws.onclose = () => {
+      console.log('WebSocket соединение закрыто');
+    };
+
+    this.ws.onerror = (error) => {
+      console.error('Ошибка WebSocket:', error);
+    };
+  }
+
+  sendMessage(recipientId: string, content: string): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      const message = { recipientId, content };
+      this.ws.send(JSON.stringify(message));
+    } else {
+      console.error('WebSocket не подключен');
+    }
+  }
+
+  getMessages(): Observable<Message> {
+    return this.messagesSubject.asObservable();
+  }
+
+  getChatHistory(recipientId: string): Observable<Message[]> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.token}`
     });
+    return this.http.get<Message[]>(`${this.apiUrl}/chat/history/${recipientId}`, { headers });
   }
 
-  getChatBetweenUsers(user1Id: string, user2Id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/between/${user1Id}/${user2Id}`, { 
-      headers: this.getAuthHeaders() 
-    });
-  }
-
-  getChats(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/chats`, { headers: this.getAuthHeaders() });
-  }
-
-  getChatById(chatId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/chats/${chatId}`, { headers: this.getAuthHeaders() });
-  }
-
-  createOrGetChat(userSend: string, userGet: string): Observable<any> {
-    return new Observable(observer => {
-      this.getChatBetweenUsers(userSend, userGet).subscribe({
-        next: (existingChat) => {
-          if (existingChat) {
-            observer.next(existingChat);
-            observer.complete();
-          } else {
-            this.http.post(`${this.apiUrl}/chats`, { 
-              user_send: userSend, 
-              user_get: userGet 
-            }, { 
-              headers: this.getAuthHeaders() 
-            }).subscribe({
-              next: (newChat) => {
-                observer.next(newChat);
-                observer.complete();
-              },
-              error: (err) => observer.error(err)
-            });
-          }
-        },
-        error: (err) => observer.error(err)
-      });
-    });
-  }
-  sendMessage(chatId: string, senderId: string, recipientId: string, content: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/messages`, {
-      chatId,
-      senderId,
-      recipientId,
-      content
-    }, { headers: this.getAuthHeaders() });
-  }
-
-  markMessagesAsRead(chatId: string, messageIds: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/messages/read`, {
-      chatId,
-      messageIds
-    }, { headers: this.getAuthHeaders() });
+  disconnect(): void {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
   }
 }
