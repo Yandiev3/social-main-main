@@ -127,22 +127,22 @@ export class ChatsComponent implements OnInit, OnDestroy {
     };
   }
 
-  async loadChats(): Promise<void> {
-    for (const user of this.users) {
-      if (user.id !== this.currentUser.id) {
-        const history = await this.chatService.getChatHistory(user.id).toPromise();
-        if (history && history.length > 1) {
-          const lastMessage = history[history.length - 1];
-          this.chats.push({
-            id: user.id,
-            userId: user.id,
-            lastMessage: lastMessage.content,
-            timestamp: new Date(lastMessage.timestamp).toLocaleDateString('ru-RU')
-          });
-        }
+ async loadChats(): Promise<void> {
+  for (const user of this.users) {
+    if (user.id !== this.currentUser.id) {
+      const history = await this.chatService.getChatHistory(user.id).toPromise();
+      if (history && history.length > 0) { // Изменено с > 1 на > 0
+        const lastMessage = history[history.length - 1];
+        this.chats.push({
+          id: user.id,
+          userId: user.id,
+          lastMessage: lastMessage.content,
+          timestamp: new Date(lastMessage.timestamp).toLocaleDateString('ru-RU')
+        });
       }
     }
   }
+}
 
   selectChat(chat: Chat): void {
     this.selectedChat = chat;
@@ -150,8 +150,14 @@ export class ChatsComponent implements OnInit, OnDestroy {
   }
 
 async loadMessages(recipientId: string): Promise<void> {
-  const messages = await this.chatService.getChatHistory(recipientId).toPromise();
-  this.messages = messages || [];
+  try {
+    const messages = await this.chatService.getChatHistory(recipientId).toPromise();
+    console.log('Loaded messages:', messages); // Добавьте для отладки
+    this.messages = messages || [];
+  } catch (error) {
+    console.error('Ошибка загрузки сообщений:', error);
+    this.messages = [];
+  }
 }
 
   sendMessage(): void {

@@ -19,6 +19,23 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+router.get('/chats', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const chats = await Chat.find({
+      $or: [{ user_send: userId }, { user_get: userId }],
+    })
+      .populate('user_send', 'username name')
+      .populate('user_get', 'username name')
+      .sort({ updatedAt: -1 });
+
+    res.status(200).json(chats);
+  } catch (e) {
+    console.error('Error fetching chats:', e);
+    res.status(500).json({ message: 'Error fetching chats' });
+  }
+});
+
 // Get chat history between two users
 router.get('/history/:recipientId', authMiddleware, async (req, res) => {
   try {
@@ -27,13 +44,13 @@ router.get('/history/:recipientId', authMiddleware, async (req, res) => {
 
     const messages = await Message.find({
       $or: [
-        { sender: userId, recipient: recipientId },
-        { sender: recipientId, recipient: userId },
+        { senderId: userId, recipientId: recipientId },
+        { senderId: recipientId, recipientId: userId },
       ],
     })
-      .sort({ timestamp: 1 })
-      .populate('sender', 'username name')
-      .populate('recipient', 'username name');
+      .sort({ createdAt: 1 }) // Используем createdAt вместо timestamp
+      .populate('senderId', 'username name')
+      .populate('recipientId', 'username name');
 
     res.status(200).json(messages);
   } catch (e) {

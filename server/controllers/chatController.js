@@ -1,15 +1,16 @@
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 const Message = require('../models/Message');
+const Chat = require('../models/Chat'); // Импортируйте модель Chat
+const User = require('../models/User'); // Импортируйте модель User
 const { secret } = require('../config');
 
 class ChatController {
   constructor(server) {
     this.wss = new WebSocket.Server({ server });
-    this.clients = new Map(); // Store WebSocket clients with user IDs
+    this.clients = new Map();
 
     this.wss.on('connection', (ws, req) => {
-      // Extract token from query parameter or headers
       const token = req.url.split('token=')[1] || req.headers['authorization']?.split(' ')[1];
       if (!token) {
         ws.close(1008, 'No token provided');
@@ -20,51 +21,91 @@ class ChatController {
         const decoded = jwt.verify(token, secret);
         const userId = decoded.id;
 
-        // Store the client with user ID
-        this.clients.set(userId, ws);
-        ws.userId = userId;
+        // Проверка существования пользователя
+        User.findById(userId)
+          .then((user) => {
+            if (!user) {
+              ws.close(1008, 'User not found');
+              return;
+            }
+            this.clients.set(userId, ws);
+            ws.userId = userId;
+          })
+          .catch((e) => {
+            ws.close(1008, 'Invalid token');
+          });
 
         ws.on('message', async (message) => {
           try {
+            console.log('Получено сообщение:', message.toString());
             const { recipientId, content } = JSON.parse(message);
             if (!recipientId || !content) {
               ws.send(JSON.stringify({ error: 'Missing recipientId or content' }));
               return;
             }
 
+            // Проверка существования получателя
+            const recipient = await User.findById(recipientId);
+            if (!recipient) {
+              ws.send(JSON.stringify({ error: 'Recipient not found' }));
+              return;
+            }
+
+            // Найти или создать чат
+            let chat = await Chat.findOne({
+              $or: [
+                { user_send: userId, user_get: recipientId },
+                { user_send: recipientId, user_get: userId },
+              ],
+            });
+
+            if (!chat) {
+              chat = new Chat({
+                user_send: userId,
+                user_get: recipientId,
+                lastMessage: { content, senderId: userId, sentAt: new Date() },
+              });
+              await chat.save();
+            } else {
+              chat.lastMessage = { content, senderId: userId, sentAt: new Date() };
+              chat.updatedAt = new Date();
+              await chat.save();
+            }
+
+            // Создать сообщение
             const newMessage = new Message({
-              sender: userId,
-              recipient: recipientId,
+              chatId: chat._id,
+              senderId: userId,
+              recipientId: recipientId,
               content,
             });
             await newMessage.save();
 
-            // Populate sender and recipient for response
+            // Заполнить данные отправителя и получателя
             const populatedMessage = await Message.findById(newMessage._id)
-              .populate('sender', 'username name')
-              .populate('recipient', 'username name');
+              .populate('senderId', 'username name')
+              .populate('recipientId', 'username name');
 
-            // Send message to sender and recipient
             const messageData = {
               id: populatedMessage._id,
-              sender: populatedMessage.sender,
-              recipient: populatedMessage.recipient,
+              sender: populatedMessage.senderId,
+              recipient: populatedMessage.recipientId,
               content: populatedMessage.content,
-              timestamp: populatedMessage.timestamp,
+              timestamp: populatedMessage.createdAt,
             };
 
-            // Send to sender
+            // Отправить сообщение отправителю
             if (this.clients.has(userId)) {
               this.clients.get(userId).send(JSON.stringify(messageData));
             }
 
-            // Send to recipient if they are connected
+            // Отправить сообщение получателю, если он подключен
             if (this.clients.has(recipientId)) {
               this.clients.get(recipientId).send(JSON.stringify(messageData));
             }
           } catch (e) {
-            console.error('Error processing message:', e);
-            ws.send(JSON.stringify({ error: 'Error processing message' }));
+            console.error('Error processing message:', e.stack);
+            ws.send(JSON.stringify({ error: e.message || 'Error processing message' }));
           }
         });
 
