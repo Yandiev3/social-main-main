@@ -60,31 +60,30 @@ export class ChatsComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      // Получаем текущего пользователя
       this.currentUser = await this.getCurrentUser();
-      // Подключаемся к WebSocket
       this.chatService.connect();
-      // Получаем список пользователей и преобразуем Profile[] в User[]
       const profiles = await this.userService.getProfiles();
       this.users = profiles.map((profile: Profile) => ({
         id: profile._id,
         name: profile.name,
         avatar: profile.avatar
       }));
-      // Подписываемся на новые сообщения
+      
       this.chatService.getMessages().subscribe((message) => {
         if (
           (message.sender._id === this.selectedChat?.userId && message.recipient._id === this.currentUser.id) ||
           (message.sender._id === this.currentUser.id && message.recipient._id === this.selectedChat?.userId)
         ) {
-          this.messages.push(message);
+          this.messages.push({
+            ...message,
+            timestamp: this.formatDate(message.timestamp)
+          });
         }
         this.updateChatList(message);
       });
-      // Загружаем чаты
+      
       await this.loadChats();
 
-      // Проверяем параметр userId из маршрута
       this.route.queryParams.subscribe((params) => {
         const userId = params['userId'];
         if (userId) {
@@ -98,7 +97,7 @@ export class ChatsComponent implements OnInit, OnDestroy {
                 id: userId,
                 userId,
                 lastMessage: '',
-                timestamp: new Date().toLocaleDateString('ru-RU')
+                timestamp: this.formatDate(new Date())
               };
               this.chats.push(newChat);
               this.selectChat(newChat);
@@ -115,6 +114,23 @@ export class ChatsComponent implements OnInit, OnDestroy {
     this.chatService.disconnect();
   }
 
+  private formatDate(dateString: string | Date): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    if (date.toDateString() === now.toDateString()) {
+      return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    return date.toLocaleString('ru-RU', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
   async getCurrentUser(): Promise<User> {
     const profile = await this.userService.getProfile().toPromise();
     if (!profile) {
@@ -127,38 +143,44 @@ export class ChatsComponent implements OnInit, OnDestroy {
     };
   }
 
- async loadChats(): Promise<void> {
-  for (const user of this.users) {
-    if (user.id !== this.currentUser.id) {
-      const history = await this.chatService.getChatHistory(user.id).toPromise();
-      if (history && history.length > 0) { // Изменено с > 1 на > 0
-        const lastMessage = history[history.length - 1];
-        this.chats.push({
-          id: user.id,
-          userId: user.id,
-          lastMessage: lastMessage.content,
-          timestamp: new Date(lastMessage.timestamp).toLocaleDateString('ru-RU')
-        });
+  async loadChats(): Promise<void> {
+    for (const user of this.users) {
+      if (user.id !== this.currentUser.id) {
+        const history = await this.chatService.getChatHistory(user.id).toPromise();
+        if (history && history.length > 0) {
+          const lastMessage = history[history.length - 1];
+          this.chats.push({
+            id: user.id,
+            userId: user.id,
+            lastMessage: lastMessage.content,
+            timestamp: this.formatDate(lastMessage.timestamp)
+          });
+        }
       }
     }
   }
-}
 
   selectChat(chat: Chat): void {
     this.selectedChat = chat;
     this.loadMessages(chat.userId);
   }
 
-async loadMessages(recipientId: string): Promise<void> {
-  try {
-    const messages = await this.chatService.getChatHistory(recipientId).toPromise();
-    console.log('Loaded messages:', messages); // Добавьте для отладки
-    this.messages = messages || [];
-  } catch (error) {
-    console.error('Ошибка загрузки сообщений:', error);
-    this.messages = [];
+  async loadMessages(recipientId: string): Promise<void> {
+    try {
+      const messages = await this.chatService.getChatHistory(recipientId).toPromise();
+      if (messages) {
+        this.messages = messages.map(msg => ({
+          ...msg,
+          timestamp: this.formatDate(msg.timestamp)
+        }));
+      } else {
+        this.messages = [];
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки сообщений:', error);
+      this.messages = [];
+    }
   }
-}
 
   sendMessage(): void {
     if (this.newMessage.trim() && this.selectedChat) {
@@ -172,13 +194,13 @@ async loadMessages(recipientId: string): Promise<void> {
     const existingChat = this.chats.find((chat) => chat.userId === userId);
     if (existingChat) {
       existingChat.lastMessage = message.content;
-      existingChat.timestamp = new Date(message.timestamp).toLocaleDateString('ru-RU');
+      existingChat.timestamp = this.formatDate(message.timestamp);
     } else {
       this.chats.push({
         id: userId,
         userId,
         lastMessage: message.content,
-        timestamp: new Date(message.timestamp).toLocaleDateString('ru-RU')
+        timestamp: this.formatDate(message.timestamp)
       });
     }
     this.chats = [...this.chats];

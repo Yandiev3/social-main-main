@@ -161,45 +161,14 @@
           display: flex;
           flex-direction: column;
           gap: 20px;
+          margin-top: 20px;
 
-          .chats__right {
+          .chats__left {
             display: flex;
             align-items: start;
             flex-direction: row;
-
-            .text_right {
-                position: relative;
-                font-weight: 500;
-                font-size: 14px;
-                line-height: 21px;
-                letter-spacing: 0px;
-                text-align: right;
-                background-color: #404040;
-                padding: 8px 16px;
-                width: max-content;
-                color: #fff;
-
-                &::after {
-                  content: "";
-                  position: absolute;
-                  top: -7px;
-                  left: -2px;
-                  width: 0;
-                  height: 0;
-                  border-style: solid;
-                  border-width: 10px 0 10px 10px;
-                  border-color: transparent transparent transparent #000;
-                  z-index: 2;
-                  transform: rotate(-135deg);
-                }
-              }
-          }
-
-          &__left {
-            display: flex;
-            align-items: start;
-            flex-direction: row-reverse;
             gap: 12px;
+
             .avatar {
               width: 32px;
               height: 32px;
@@ -217,12 +186,16 @@
               display: flex;
               flex-direction: column;
               gap: 8px;
+
               &-title {
                 font-weight: 400;
                 font-size: 12px;
                 line-height: 16px;
                 color: #fff;
                 letter-spacing: 0px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
               }
 
               .text {
@@ -231,25 +204,53 @@
                 font-size: 14px;
                 line-height: 21px;
                 letter-spacing: 0px;
-                text-align: right;
-                background-color: var(--primary-color);
+                text-align: left;
+                background-color: black;
                 padding: 8px 16px;
                 width: max-content;
-                color: #000;
+                max-width: 400px;
+                border-radius: 4px;
+                border: 1px solid #fff;
+              }
+            }
+          }
 
-                &::after {
-                  content: "";
-                  position: absolute;
-                  top: -7px;
-                  right: -2px;
-                  width: 0;
-                  height: 0;
-                  border-style: solid;
-                  border-width: 10px 0 10px 10px;
-                  border-color: transparent transparent transparent #000;
-                  z-index: 2;
-                  transform: rotate(-45deg);
-                }
+          .chats__right {
+            display: flex;
+            align-items: start;
+            flex-direction: row-reverse;
+            gap: 12px;
+
+            .user__inform {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              align-items: flex-end;
+
+              &-title {
+                font-weight: 400;
+                font-size: 12px;
+                line-height: 16px;
+                color: #fff;
+                letter-spacing: 0px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+
+              .text_right {
+                position: relative;
+                font-weight: 500;
+                font-size: 14px;
+                line-height: 21px;
+                letter-spacing: 0px;
+                text-align: right;
+                background-color: black;
+                padding: 8px 16px;
+                width: max-content;
+                max-width: 400px;
+                border-radius: 4px;
+                border: 1px solid #fff;
               }
             }
           }
@@ -284,8 +285,6 @@
           color: #fff;
           background: transparent;
           outline: none;
-
-          
         }
 
         button {

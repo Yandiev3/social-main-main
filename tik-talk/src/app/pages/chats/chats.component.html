@@ -49,10 +49,10 @@
         <div class="date">Сегодня</div>
         <div class="chats">
           <div
-            class="chats__left"
-            *ngFor="let message of messages"
-            [ngClass]="{'chats__right': message.sender._id === currentUser.id}"
-          >
+  class="chats__left"
+  *ngFor="let message of messages"
+  [ngClass]="{'chats__right': message.sender._id === currentUser.id}"
+>
             <div class="avatar">
               <img
                 [src]="message.sender._id === currentUser.id ? currentUser.avatar : getUserById(selectedChat.userId)?.avatar"
