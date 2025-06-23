@@ -133,35 +133,31 @@
                 post.createdAt | date : "dd.MM.yyyy"
               }}</span>
             </div>
-            <div
-              class="post-menu"
-              *ngIf="
-                user._id === post.userId._id || user.roles?.includes('Admin')
-              "
-            >
-              <button class="menu-btn" (click)="togglePostMenu(post)">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </button>
-              <div class="menu-dropdown" *ngIf="post.showMenu">
-                <button class="menu-item" (click)="startEditPost(post)">
-                  Редактировать
-                </button>
-                <button class="menu-item delete" (click)="deletePost(post)">
-                  Удалить
-                </button>
-              </div>
-            </div>
+            
+<div class="post-menu" *ngIf="currentUser._id === post.userId._id || currentUser.roles?.includes('Admin')">
+  <button class="menu-btn" (click)="togglePostMenu(post)">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+        fill="currentColor"
+      />
+    </svg>
+  </button>
+  <div class="menu-dropdown" *ngIf="post.showMenu">
+    <button class="menu-item" (click)="startEditPost(post)">
+      Редактировать
+    </button>
+    <button class="menu-item delete" (click)="deletePost(post)">
+      Удалить
+    </button>
+  </div>
+</div>
           </div>
 
           <div class="post-content" *ngIf="!post.isEditing">
@@ -267,7 +263,7 @@
     </div>
     <div class="main-other">
       <div class="other-content">
-        <div class="subscribers h6">Подписчики</div>
+        <!-- <div class="subscribers h6">Подписчики</div> -->
         <div class="stacks h6">
           Навыки
           <div class="skill_main">
