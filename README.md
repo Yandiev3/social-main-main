@@ -9,3 +9,5 @@ https://www.figma.com/design/oGHQigWHYDVfYA7GPRi9q1/%F0%9F%92%ABTIK-TALK?node-id
 1. CD tik-talk
 2. npm i
 3. npm start
+
+https://preview--tutor-journal-dashboard.lovable.app/
